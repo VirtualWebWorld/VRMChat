@@ -19,6 +19,7 @@ export default class Three extends Vue {
   keyLeft: string = 'a'
   keyBack: string = 's'
   keyRight: string = 'd'
+  keyCamera: string = 'F4'
   keyArr: { [key: string]: boolean } = {}
 
   /** mounted() */
@@ -38,6 +39,11 @@ export default class Three extends Vue {
       this.threeMain.camera.aspect = window.innerWidth / window.innerHeight
       this.threeMain.camera.updateProjectionMatrix()
     })
+    window.addEventListener('mouseleave', () => {
+      for (const i in this.keyArr) {
+        this.keyArr[i] = false
+      }
+    })
 
     this.loop()
   }
@@ -55,6 +61,12 @@ export default class Three extends Vue {
     }
     if (e.key === this.keyRight) {
       this.keyArr.d = state
+    }
+    if (e.key === this.keyCamera && this.keyArr.camera !== state) {
+      this.keyArr.camera = state
+      if (state) {
+        this.va.cameraChange()
+      }
     }
   }
 

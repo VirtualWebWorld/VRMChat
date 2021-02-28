@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMSchema } from '@pixiv/three-vrm'
 import ThreeMain from './ThreeMain'
-
+import Camera from './avatarcontrol/Camera'
 export default class VAvatar {
   loader: GLTFLoader
   scene: THREE.Scene
@@ -11,6 +11,7 @@ export default class VAvatar {
   schema: any = null
   three: ThreeMain
   clock: THREE.Clock
+  camera!: Camera
   constructor(scene: THREE.Scene, three: ThreeMain) {
     this.scene = scene
     this.loader = new GLTFLoader()
@@ -35,6 +36,7 @@ export default class VAvatar {
       })
       this.vrm = vrm
     })
+    this.camera = new Camera(this.three, this.vrm)
   }
 
   loadVRM(): Promise<any> {
@@ -79,16 +81,16 @@ export default class VAvatar {
     const moveZ = -0.1 * Math.sin(((keyNum + 1) * Math.PI) / 2 + rotate.y)
     this.vrm.scene.position.x += moveX
     this.vrm.scene.position.z += moveZ
-    this.three.camera.position.x += moveX
-    this.three.camera.position.z += moveZ
+
+    this.camera.moveCamera(moveX, moveZ)
+  }
+
+  cameraChange() {
+    this.camera.cameraChange()
   }
 
   animate() {
-    this.three.controls.target.set(
-      this.vrm.scene.position.x,
-      this.vrm.scene.position.y,
-      this.vrm.scene.position.z
-    )
+    this.camera.animate()
     this.vrm.update(this.clock.getDelta())
   }
 }

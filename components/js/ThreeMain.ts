@@ -50,7 +50,7 @@ export default class ThreeMain {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(this.width, this.height)
 
-    this.camera.position.set(0, 5, 5)
+    this.camera.position.set(0, 2, 5)
     this.camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     this.stats.showPanel(0)
@@ -64,7 +64,6 @@ export default class ThreeMain {
 
   animate() {
     this.stats.update()
-    this.controls.update()
     this.renderer.render(this.scene, this.camera)
   }
 }
