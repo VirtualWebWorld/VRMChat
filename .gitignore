@@ -90,3 +90,5 @@ sw.*
 *.swp
 
 static/akatsuki1910.vrm
+package-lock.json
+yarn.lock

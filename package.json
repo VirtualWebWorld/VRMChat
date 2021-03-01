@@ -39,5 +39,23 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.6.0",
     "prettier": "^2.2.1"
+  },
+  "description": "## Build Setup",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VirtualWebWorld/VRMChat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VirtualWebWorld/VRMChat/issues"
+  },
+  "homepage": "https://github.com/VirtualWebWorld/VRMChat#readme",
+  "config": {
+    "nuxt": {
+      "host": "0.0.0.0",
+      "port": "3000"
+    }
   }
 }
