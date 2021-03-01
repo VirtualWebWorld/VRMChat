@@ -12,6 +12,7 @@ export default class VAvatar {
   three: ThreeMain
   clock: THREE.Clock
   camera!: Camera
+  gltf: any
   constructor(scene: THREE.Scene, three: ThreeMain) {
     this.scene = scene
     this.loader = new GLTFLoader()
@@ -21,28 +22,38 @@ export default class VAvatar {
   }
 
   async loadAvater() {
-    const gltf = await this.loadVRM()
-    await VRM.from(gltf).then((vrm) => {
-      this.scene.add(vrm.scene)
-      // vrm.scene.rotation.y = Math.PI
-      this.schema = VRMSchema
-      vrm.humanoid!.setPose({
-        [VRMSchema.HumanoidBoneName.LeftUpperArm]: {
-          rotation: [0, 0, 0.5, 1],
-        },
-        [VRMSchema.HumanoidBoneName.RightUpperArm]: {
-          rotation: [0, 0, -0.5, 1],
-        },
-      })
-      this.vrm = vrm
-    })
+    this.gltf = await this.loadVRM()
+    this.vrm = await this.loadModel()
+    this.vrmSet(this.vrm)
     this.camera = new Camera(this.three, this.vrm)
+  }
+
+  loadModel(gltf: any = this.gltf): Promise<VRM> {
+    return new Promise((resolve) => {
+      VRM.from(gltf).then((vrm) => {
+        resolve(vrm)
+      })
+    })
+  }
+
+  vrmSet(vrm: VRM) {
+    this.scene.add(vrm.scene)
+    this.schema = VRMSchema
+    vrm.humanoid!.setPose({
+      [VRMSchema.HumanoidBoneName.LeftUpperArm]: {
+        rotation: [0, 0, 0.5, 1],
+      },
+      [VRMSchema.HumanoidBoneName.RightUpperArm]: {
+        rotation: [0, 0, -0.5, 1],
+      },
+    })
   }
 
   loadVRM(): Promise<any> {
     return new Promise((resolve) => {
       this.loader.load(
-        'akatsuki1910.vrm',
+        // 'akatsuki1910.vrm',
+        'three-vrm-girl.vrm',
         (gltf) => {
           resolve(gltf)
         },
