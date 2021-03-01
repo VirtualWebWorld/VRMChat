@@ -89,4 +89,4 @@ sw.*
 # Vim swap files
 *.swp
 
-static/*.vrm
+static/akatsuki1910.vrm

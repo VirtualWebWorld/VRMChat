@@ -52,7 +52,8 @@ export default class VAvatar {
   loadVRM(): Promise<any> {
     return new Promise((resolve) => {
       this.loader.load(
-        'akatsuki1910.vrm',
+        // 'akatsuki1910.vrm',
+        'three-vrm-girl.vrm',
         (gltf) => {
           resolve(gltf)
         },
