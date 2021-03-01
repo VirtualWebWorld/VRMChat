@@ -4,8 +4,26 @@
 
 <script lang="ts">
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
+import { io, Socket } from 'socket.io-client'
+import { VRM } from '@pixiv/three-vrm'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
+
+export interface VRMData {
+  id: string
+  name: string
+  vrm: VRM | null
+}
+
+export interface VRMState {
+  id: string
+  x: number
+  y: number
+  z: number
+  rx: number
+  ry: number
+  rz: number
+}
 
 @Component({})
 export default class Three extends Vue {
@@ -14,6 +32,9 @@ export default class Three extends Vue {
   /** data() */
   threeMain!: ThreeMain
   va!: VAvatar
+
+  socket: Socket = io('http://localhost:8000')
+  vrmArr: VRMData[] = []
 
   keyFront: string = 'w'
   keyLeft: string = 'a'
@@ -27,6 +48,42 @@ export default class Three extends Vue {
     this.threeMain = new ThreeMain(this.threeCanvas)
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
     await this.va.loadAvater()
+
+    const firstData: VRMData = {
+      id: this.socket.id,
+      name: 'a',
+      vrm: null,
+    }
+
+    this.socket
+      .emit('join-ping')
+      .emit('send-vrm', firstData)
+      .on('join-pong', (data: any[]) => {
+        data.forEach(async (element) => {
+          await this.newVRMLoad(element)
+        })
+      })
+      .on('new-vrm', async (data: VRMData) => {
+        await this.newVRMLoad(data)
+      })
+      .on('old-vrm', (data: VRMData) => {
+        const vsd = this.vrmArr.find((d) => d.id === data.id)
+        if (vsd !== undefined) {
+          this.threeMain.scene.remove(vsd.vrm!.scene)
+        }
+      })
+      .on('new-vrm-data', (data: VRMState) => {
+        const vsd = this.vrmArr.find((d) => d.id === data.id)
+        if (vsd !== undefined) {
+          const vrm = vsd.vrm!.scene
+          vrm.position.x = data.x
+          vrm.position.y = data.y
+          vrm.position.z = data.z
+          vrm.rotation.x = data.rx
+          vrm.rotation.y = data.ry
+          vrm.rotation.z = data.rz
+        }
+      })
 
     window.addEventListener('keydown', (e) => {
       this.keyStatus(e, true)
@@ -70,6 +127,14 @@ export default class Three extends Vue {
     }
   }
 
+  async newVRMLoad(data: VRMData) {
+    const gltf = await this.va.loadVRM()
+    data.vrm = await this.va.loadModel(gltf)
+    this.va.vrmSet(data.vrm)
+    this.vrmArr.push(data)
+    this.threeMain.scene.add(data.vrm!.scene)
+  }
+
   loop() {
     if (this.keyArr.w) {
       this.va.move('w')
@@ -85,6 +150,16 @@ export default class Three extends Vue {
     }
     this.va.animate()
     this.threeMain.animate()
+    const positionData: VRMState = {
+      id: this.socket!.id,
+      x: this.va.vrm.scene.position.x,
+      y: this.va.vrm.scene.position.y,
+      z: this.va.vrm.scene.position.z,
+      rx: this.va.vrm.scene.rotation.x,
+      ry: this.va.vrm.scene.rotation.y,
+      rz: this.va.vrm.scene.rotation.z,
+    }
+    this.socket!.emit('send-vrm-data', positionData)
     requestAnimationFrame(this.loop)
   }
 }

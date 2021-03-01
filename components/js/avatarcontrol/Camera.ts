@@ -54,7 +54,7 @@ export default class Camera {
         this.cameraRotateFPS()
       }
     })
-    window.addEventListener('mouseup', (e) => {
+    window.addEventListener('mouseup', () => {
       this.isMouseDown = false
     })
   }
