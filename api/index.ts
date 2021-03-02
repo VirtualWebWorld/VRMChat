@@ -5,7 +5,7 @@ const io = require('socket.io')(server, {
     origin: [
       'http://localhost:3000',
       'http://vrmchat.aktk1910.pw',
-      'https://vrmchat.herokuapp.com/',
+      'https://vrmchat.herokuapp.com',
     ],
   },
 })
