@@ -1,9 +1,12 @@
-import http from 'http'
 const app = require('express')()
-const server = http.createServer(app)
+const server = app.listen(8000)
 const io = require('socket.io')(server, {
   cors: {
-    origin: '*',
+    origin: [
+      'http://localhost:3000',
+      'http://webchat.aktk1910.pw',
+      'https://vrmchat.herokuapp.com/',
+    ],
   },
 })
 
@@ -40,7 +43,7 @@ io.on('connection', (socket: any) => {
     })
 })
 
-server.listen(8000)
+// server.listen(8000)
 
 module.exports = {
   path: '/',
