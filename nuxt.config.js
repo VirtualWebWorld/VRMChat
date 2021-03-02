@@ -38,6 +38,10 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: ['@nuxtjs/style-resources', '@nuxtjs/axios', '@nuxtjs/proxy'],
 
+  axios: {
+    prefix: '/api',
+  },
+
   proxy: {
     '/api': {
       target: 'http://localhost:8000',
@@ -48,7 +52,7 @@ export default {
   },
 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:8000',
+    baseUrl: process.env.BASE_URL || '',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
