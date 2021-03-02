@@ -40,7 +40,7 @@ io.on('connection', (socket: any) => {
     })
 })
 
-server.listen(8000)
+server.listen(process.env.PORT || 8000)
 
 module.exports = {
   path: '/',
