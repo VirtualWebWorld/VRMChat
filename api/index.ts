@@ -4,7 +4,7 @@ const io = require('socket.io')(server, {
   cors: {
     origin: [
       'http://localhost:3000',
-      'http://webchat.aktk1910.pw',
+      'http://vrmchat.aktk1910.pw',
       'https://vrmchat.herokuapp.com/',
     ],
   },
