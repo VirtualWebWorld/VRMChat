@@ -41,3 +41,8 @@ io.on('connection', (socket: any) => {
 })
 
 server.listen(8000)
+
+module.exports = {
+  path: '/',
+  handler: app,
+}
