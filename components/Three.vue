@@ -33,7 +33,7 @@ export default class Three extends Vue {
   threeMain!: ThreeMain
   va!: VAvatar
 
-  socket: Socket = io('http://localhost:8000')
+  socket: Socket = io(`${process.env.baseUrl}`)
   vrmArr: VRMData[] = []
 
   keyFront: string = 'w'

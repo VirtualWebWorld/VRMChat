@@ -47,6 +47,14 @@ export default {
     },
   },
 
+  axios: {
+    prefix: '/api',
+  },
+
+  env: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:8000',
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     cssSourceMap: false,
