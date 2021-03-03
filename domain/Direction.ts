@@ -5,19 +5,19 @@ export default class Direction {
   y: -1 | 0 | 1 = 0
 
   moveFront() {
-    this.x = 1
-  }
-
-  moveBack() {
-    this.x = -1
-  }
-
-  moveRight() {
     this.y = 1
   }
 
-  moveLeft() {
+  moveBack() {
     this.y = -1
+  }
+
+  moveRight() {
+    this.x = 1
+  }
+
+  moveLeft() {
+    this.x = -1
   }
 
   stop() {
