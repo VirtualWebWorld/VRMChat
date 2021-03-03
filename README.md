@@ -1,20 +1,7 @@
 # VRMChat
 
-## Build Setup
+## Link
 
-```bash
-# install dependencies
-$ yarn install
-
-# serve with hot reload at localhost:3000
-$ yarn dev
-
-# build for production and launch server
-$ yarn build
-$ yarn start
-
-# generate static project
-$ yarn generate
-```
-
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+<https://qiita.com/pure-adachi/items/c2c5730560650c80a5e0>
+<https://qiita.com/paranishian/items/1be71034cfdf58b9ecf0>
+<https://reffect.co.jp/react/front-react-back-node>
