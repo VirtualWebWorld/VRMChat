@@ -4,8 +4,8 @@ import { VRMData, VRMState } from '../../client/domain'
 import path from 'path'
 
 const app = express()
-const server = app.listen(8000, () => {
-  console.log('Node.js is listening to PORT: 8000')
+const server = app.listen(process.env.PORT || 8000, () => {
+  console.log('Node.js is listening to PORT: ' + server.address())
 })
 
 const io = new Server(server, {
