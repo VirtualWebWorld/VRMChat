@@ -1,6 +1,7 @@
 import express from 'express'
 import { Server, Socket } from 'socket.io'
 import { VRMData, VRMState } from '../../client/domain'
+import path from 'path'
 
 const app = express()
 const server = app.listen(8000, () => {
@@ -51,6 +52,7 @@ io.on('connection', (socket: Socket) => {
     })
 })
 
+app.use(express.static(path.join(__dirname, '../../client/dist')));
 // server.listen(8000)
 
 module.exports = {
