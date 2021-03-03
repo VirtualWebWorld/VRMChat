@@ -8,6 +8,7 @@ import { io, Socket } from 'socket.io-client'
 import { VRMData, VRMState, Direction } from '../domain'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
+declare let process: any
 
 @Component({})
 export default class Three extends Vue {

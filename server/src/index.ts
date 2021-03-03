@@ -53,7 +53,7 @@ io.on('connection', (socket: Socket) => {
     })
 })
 
-app.use(express.static(path.join(__dirname, '../../client/dist')));
+app.use(express.static(path.join(__dirname, '../../client/dist')))
 // server.listen(8000)
 
 module.exports = {
