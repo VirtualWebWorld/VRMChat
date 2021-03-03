@@ -5,25 +5,9 @@
 <script lang="ts">
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
 import { io, Socket } from 'socket.io-client'
-import { VRM } from '@pixiv/three-vrm'
+import { VRMData, VRMState, Direction } from '../domain'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
-
-export interface VRMData {
-  id: string
-  name: string
-  vrm: VRM | null
-}
-
-export interface VRMState {
-  id: string
-  x: number
-  y: number
-  z: number
-  rx: number
-  ry: number
-  rz: number
-}
 
 @Component({})
 export default class Three extends Vue {
@@ -42,6 +26,9 @@ export default class Three extends Vue {
   keyRight: string = 'd'
   keyCamera: string = 'F4'
   keyArr: { [key: string]: boolean } = {}
+
+  moveDirection: Direction = new Direction()
+  cameraChanging: boolean = false
 
   /** mounted() */
   async mounted() {
@@ -85,12 +72,8 @@ export default class Three extends Vue {
         }
       })
 
-    window.addEventListener('keydown', (e) => {
-      this.keyStatus(e, true)
-    })
-    window.addEventListener('keyup', (e) => {
-      this.keyStatus(e, false)
-    })
+    window.addEventListener('keydown', this.keyDown)
+    window.addEventListener('keyup', this.keyUp)
     window.addEventListener('resize', () => {
       this.threeMain.renderer.setSize(window.innerWidth, window.innerHeight)
       this.threeMain.camera.aspect = window.innerWidth / window.innerHeight
@@ -106,24 +89,42 @@ export default class Three extends Vue {
   }
 
   /** methods() */
-  keyStatus(e: KeyboardEvent, state: boolean) {
-    if (e.key === this.keyFront) {
-      this.keyArr.w = state
+  keyDown(e: KeyboardEvent) {
+    switch (e.key) {
+      case this.keyFront:
+        this.moveDirection.moveFront()
+        break
+      case this.keyLeft:
+        this.moveDirection.moveLeft()
+        break
+      case this.keyBack:
+        this.moveDirection.moveBack()
+        break
+      case this.keyRight:
+        this.moveDirection.moveRight()
+        break
+      case this.keyCamera:
+        if (!this.cameraChanging) {
+          this.cameraChanging = true
+          this.va.cameraChange()
+        }
+        break
     }
-    if (e.key === this.keyLeft) {
-      this.keyArr.a = state
-    }
-    if (e.key === this.keyBack) {
-      this.keyArr.s = state
-    }
-    if (e.key === this.keyRight) {
-      this.keyArr.d = state
-    }
-    if (e.key === this.keyCamera && this.keyArr.camera !== state) {
-      this.keyArr.camera = state
-      if (state) {
-        this.va.cameraChange()
-      }
+  }
+
+  keyUp(e: KeyboardEvent) {
+    switch (e.key) {
+      case this.keyFront:
+      case this.keyBack:
+        this.moveDirection.stopY()
+        break
+      case this.keyLeft:
+      case this.keyRight:
+        this.moveDirection.stopX()
+        break
+      case this.keyCamera:
+        this.cameraChanging = false
+        break
     }
   }
 
@@ -136,18 +137,7 @@ export default class Three extends Vue {
   }
 
   loop() {
-    if (this.keyArr.w) {
-      this.va.move('w')
-    }
-    if (this.keyArr.a) {
-      this.va.move('a')
-    }
-    if (this.keyArr.s) {
-      this.va.move('s')
-    }
-    if (this.keyArr.d) {
-      this.va.move('d')
-    }
+    this.va.move(this.moveDirection.toVector2())
     this.va.animate()
     this.threeMain.animate()
     const positionData: VRMState = {

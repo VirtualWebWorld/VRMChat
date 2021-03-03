@@ -68,28 +68,14 @@ export default class VAvatar {
     })
   }
 
-  move(key: string) {
-    let keyNum: number = 0
-    switch (key) {
-      case 'w':
-        keyNum = 0
-        break
-      case 'a':
-        keyNum = 1
-        break
-      case 's':
-        keyNum = 2
-        break
-      case 'd':
-        keyNum = 3
-        break
-    }
+  move(vector: THREE.Vector2) {
     const angle = this.three.camera.quaternion
     const rotate = new THREE.Euler().setFromQuaternion(angle, 'YXZ')
     this.vrm.scene.rotation.y = rotate.y
 
-    const moveX = 0.1 * Math.cos(((keyNum + 1) * Math.PI) / 2 + rotate.y)
-    const moveZ = -0.1 * Math.sin(((keyNum + 1) * Math.PI) / 2 + rotate.y)
+    const rotatedVector = vector.rotateAround(new THREE.Vector2(), rotate.y)
+    const moveX = 0.1 * rotatedVector.x
+    const moveZ = -0.1 * rotatedVector.y
     this.vrm.scene.position.x += moveX
     this.vrm.scene.position.z += moveZ
 
