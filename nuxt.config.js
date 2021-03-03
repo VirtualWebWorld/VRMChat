@@ -22,9 +22,7 @@ export default {
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
 
-  serverMiddleware: {
-    api: '~/api',
-  },
+  serverMiddleware: ['~/api'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -36,23 +34,10 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/style-resources', '@nuxtjs/axios', '@nuxtjs/proxy'],
-
-  axios: {
-    prefix: '/api',
-  },
-
-  proxy: {
-    '/api': {
-      target: 'http://localhost:8000',
-      pathRewrite: {
-        '^/api': '/',
-      },
-    },
-  },
+  modules: ['@nuxtjs/style-resources'],
 
   env: {
-    baseUrl: process.env.BASE_URL || '',
+    baseUrl: process.env.BASE_URL || 'http://localhost:8000',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
