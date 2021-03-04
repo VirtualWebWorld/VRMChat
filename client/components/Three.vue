@@ -5,7 +5,8 @@
 <script lang="ts">
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
 import { io, Socket } from 'socket.io-client'
-import { VRMData, VRMState, Direction } from '../domain'
+import { VRMData, VRMState } from '../domain'
+import Direction from './js/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
 declare let process: any
@@ -18,7 +19,7 @@ export default class Three extends Vue {
   threeMain!: ThreeMain
   va!: VAvatar
 
-  socket: Socket = io(`${process.env.baseUrl}`)
+  socket: Socket = this.$store.state.socket
   vrmArr: VRMData[] = []
 
   keyFront: string = 'w'
@@ -31,11 +32,16 @@ export default class Three extends Vue {
   moveDirection: Direction = new Direction()
   cameraChanging: boolean = false
 
+  /** created() */
+  created() {
+    this.$store.commit('socketSet', this.socket)
+  }
+
   /** mounted() */
   async mounted() {
     this.threeMain = new ThreeMain(this.threeCanvas)
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
-    await this.va.loadAvater()
+    await this.va.loadAvater(this.$store)
 
     const firstData: VRMData = {
       id: this.socket.id,
@@ -80,7 +86,7 @@ export default class Three extends Vue {
       this.threeMain.camera.aspect = window.innerWidth / window.innerHeight
       this.threeMain.camera.updateProjectionMatrix()
     })
-    window.addEventListener('mouseleave', () => {
+    document.addEventListener('mouseleave', () => {
       for (const i in this.keyArr) {
         this.keyArr[i] = false
       }

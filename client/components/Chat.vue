@@ -6,6 +6,7 @@
           v-model="msg"
           class="input"
           type="text"
+          placeholder="message"
           @keypress.enter.exact="sendMessage"
         />
       </div>
@@ -26,7 +27,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'nuxt-property-decorator'
-import { io, Socket } from 'socket.io-client'
+import { Socket } from 'socket.io-client'
 
 export interface Message {
   name: string
@@ -38,13 +39,11 @@ export default class Chat extends Vue {
   /** data() */
   msg: string = ''
   msgs: Message[] = []
-  socket: Socket | null = null
+  socket: Socket = this.$store.state.socket
 
   /** mounted() */
   mounted() {
-    this.socket = io('http://localhost:8000')
     this.socket.on('new-msg', (msg: Message) => {
-      console.log(msg)
       this.msgs.push(msg)
     })
   }
@@ -65,4 +64,20 @@ export default class Chat extends Vue {
 }
 </script>
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+.section
+  position absolute
+  right 0
+  bottom 0
+  width 30%
+  max-width 300px
+  height 40%
+  max-height 370px
+  background red
+
+.media-content
+  height 100%
+
+.content
+  color white
+</style>

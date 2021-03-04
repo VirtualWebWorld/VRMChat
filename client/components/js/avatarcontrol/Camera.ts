@@ -39,7 +39,7 @@ export default class Camera {
 
     this.isMouseDown = false
 
-    document.addEventListener('mousedown', (e) => {
+    window.addEventListener('mousedown', (e) => {
       this.isMouseDown = true
       this.mouse.x0 = e.pageX
       this.mouse.y0 = e.pageY

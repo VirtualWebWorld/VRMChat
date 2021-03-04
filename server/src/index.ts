@@ -26,6 +26,7 @@ io.on('connection', (socket: Socket) => {
   console.log(`socket_id: ${socket.id} is connected.`)
 
   socket
+    //login
     .on('join-ping', () => {
       console.log('j', socket.id)
       const sa = []
@@ -34,10 +35,8 @@ io.on('connection', (socket: Socket) => {
       }
       socket.emit('join-pong', sa)
     })
-    // .on('send-msg', (msg: any) => {
-    //   socket.broadcast.emit('new-msg', msg)
-    //   console.log(`receive message: ${JSON.stringify(msg)}`)
-    // })
+
+    //vrm
     .on('send-vrm', (data: VRMData) => {
       socketArr.set(socket.id, data)
       console.log('member', socketArr.size)
@@ -50,6 +49,12 @@ io.on('connection', (socket: Socket) => {
       socket.broadcast.emit('old-vrm', socketArr.get(socket.id))
       socketArr.delete(socket.id)
       console.log('d', socket.id)
+    })
+
+    //message
+    .on('send-msg', (msg: any) => {
+      socket.broadcast.emit('new-msg', msg)
+      console.log(`receive message: ${JSON.stringify(msg)}`)
     })
 })
 

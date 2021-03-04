@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMSchema } from '@pixiv/three-vrm'
+import { Vue } from 'nuxt-property-decorator'
 import ThreeMain from './ThreeMain'
 import Camera from './avatarcontrol/Camera'
-export default class VAvatar {
+export default class VAvatar extends Vue {
   loader: GLTFLoader
   scene: THREE.Scene
   vrm!: VRM
@@ -14,6 +15,7 @@ export default class VAvatar {
   camera!: Camera
   gltf: any
   constructor(scene: THREE.Scene, three: ThreeMain) {
+    super()
     this.scene = scene
     this.loader = new GLTFLoader()
     this.three = three
@@ -21,8 +23,8 @@ export default class VAvatar {
     this.clock.start()
   }
 
-  async loadAvater() {
-    this.gltf = await this.loadVRM()
+  async loadAvater(store: any) {
+    this.gltf = await this.loadVRM(store)
     this.vrm = await this.loadModel()
     this.vrmSet(this.vrm)
     this.camera = new Camera(this.three, this.vrm)
@@ -49,7 +51,7 @@ export default class VAvatar {
     })
   }
 
-  loadVRM(): Promise<any> {
+  loadVRM(store: any = null): Promise<any> {
     return new Promise((resolve) => {
       this.loader.load(
         // 'akatsuki1910.vrm',
@@ -57,13 +59,15 @@ export default class VAvatar {
         (gltf) => {
           resolve(gltf)
         },
-        (progress) =>
-          console.log(
-            'Loading model...',
-            100.0 * (progress.loaded / progress.total),
-            '%'
-          ),
-        (error) => console.error(error)
+        (progress) => {
+          const par = Math.floor((progress.loaded / progress.total) * 100)
+          if (store !== null) {
+            store.commit('loadCount', par)
+          }
+        },
+        (error) => {
+          console.error(error)
+        }
       )
     })
   }
