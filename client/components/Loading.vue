@@ -1,5 +1,8 @@
 <template>
-  <div :class="[{ complites: isLoad }, 'loading-wrap']">
+  <div
+    ref="loadMain"
+    :class="['loading-wrap', { 'anime-end': animeEnd }, { complites: isLoad }]"
+  >
     <div class="loading-text">
       <div class="text">Now Loading</div>
       <div class="text-d">.</div>
@@ -24,11 +27,13 @@ import { Component, Ref, Watch, Vue } from 'nuxt-property-decorator'
 @Component({})
 export default class Loading extends Vue {
   @Ref() lbf!: HTMLDivElement
+  @Ref() loadMain!: HTMLDivElement
 
   /** data() */
   loadNum: number = 100
   loadDone: number = 0
   isLoad: boolean = false
+  animeEnd: boolean = false
 
   /** computed() */
   get load() {
@@ -46,9 +51,22 @@ export default class Loading extends Vue {
     }
   }
 
+  /** mounted() */
+  mounted() {
+    this.loadMain.addEventListener('animationend', () => {
+      console.log(11111)
+      this.fadeOutEnd()
+    })
+  }
+
   /** methods() */
   loadComplites() {
     this.isLoad = true
+    this.$store.commit('loadFlag', true)
+  }
+
+  fadeOutEnd() {
+    this.animeEnd = true
   }
 }
 </script>
@@ -57,16 +75,17 @@ export default class Loading extends Vue {
 lbw = 200px
 lbh = 10px
 
-.complites
+.anime-end
   display none !important
-  // animation fadeback .1s linear 2s both
+
+.complites
+  // display none !important
+  animation fadeback .1s linear 5s both
 
 @keyframes fadeback
   from
-    display block
     opacity 1
   to
-    display none
     opacity 0
 
 
@@ -79,6 +98,7 @@ lbh = 10px
 	align-items center
 	justify-content center
 	gap 1ch
+  position absolute
 
 .loading-text
 	color white

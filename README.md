@@ -17,3 +17,7 @@ git push heroku develop:master
 ```shell
 heroku logs --tail --ps web.1
 ```
+
+## Bags
+
+<https://github.com/nuxt/nuxt.js/issues/1917>
