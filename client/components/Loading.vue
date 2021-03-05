@@ -80,7 +80,7 @@ lbh = 10px
 
 .complites
   // display none !important
-  animation fadeback .1s linear 5s both
+  animation fadeback .1s linear 2s both
 
 @keyframes fadeback
   from
