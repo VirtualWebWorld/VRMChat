@@ -1,32 +1,34 @@
 <template>
-  <section class="section">
-    <div class="field">
-      <div class="control">
-        <input
-          v-model="msg"
-          class="input"
-          type="text"
-          @keypress.enter.exact="sendMessage"
-        />
-      </div>
-    </div>
-    <article v-for="(msg, index) in msgs" :key="index" class="media">
-      <div class="media-content">
-        <div class="content">
-          <p>
-            <strong>{{ msg.name }}</strong>
-            <br />
-            {{ msg.text }}
-          </p>
+  <div :class="[{ loading: isLoad }, 'message']">
+    <div class="chat">
+      <div ref="chat" class="chat-frame">
+        <div v-for="(msg, index) in msgs" :key="index" class="content">
+          <div class="name">{{ msg.name }}</div>
+          <div class="text">{{ msg.text }}</div>
         </div>
       </div>
-    </article>
-  </section>
+    </div>
+    <div class="field">
+      <div class="field-frame">
+        <textarea
+          ref="text"
+          v-model="msg"
+          class="input"
+          placeholder="message"
+          @focus="focusArea"
+          @keydown.enter.exact="keyDownEnter"
+          @keyup.enter.exact="keyUpEnter"
+          @keydown.enter.shift.exact="keyEnterShift"
+        />
+        <button class="button" @click="sendMessage">送信</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
-import { io, Socket } from 'socket.io-client'
+import { Component, NextTick, Ref, Vue, Watch } from 'nuxt-property-decorator'
+import { Socket } from 'socket.io-client'
 
 export interface Message {
   name: string
@@ -35,22 +37,81 @@ export interface Message {
 
 @Component({})
 export default class Chat extends Vue {
+  @Ref() chat!: HTMLDivElement
+  @Ref() text!: HTMLTextAreaElement
+
   /** data() */
   msg: string = ''
   msgs: Message[] = []
-  socket: Socket | null = null
+  socket: Socket = this.$store.getters.socket
+  isShiftPush = false
+  autoScroll = false
+  isLoad = true
+
+  /** computed() */
+  get isLoadFlag() {
+    console.log(1)
+    return this.$store.getters.isLoad
+  }
+
+  get cFlag() {
+    return this.$store.getters.commentFlag
+  }
+
+  /** watch() */
+  @Watch('isLoadFlag')
+  loadFlag(flag: boolean) {
+    this.isLoad = !flag
+  }
+
+  @Watch('cFlag')
+  commentForcus() {
+    if (this.cFlag) {
+      this.text.focus()
+      this.focusArea()
+    } else {
+      this.$store.commit('isComment', false)
+      this.text.blur()
+    }
+  }
 
   /** mounted() */
   mounted() {
-    this.socket = io('http://localhost:8000')
     this.socket.on('new-msg', (msg: Message) => {
-      console.log(msg)
       this.msgs.push(msg)
     })
   }
 
   /** methods() */
+  focusArea(e: any = null) {
+    if (e !== null) {
+      e.preventDefault()
+    }
+    this.$store.commit('isComment', true)
+  }
+
+  keyDownEnter(e: any) {
+    e.preventDefault()
+    if (!this.isShiftPush) {
+      this.sendMessage()
+    }
+  }
+
+  keyUpEnter(e: any) {
+    e.preventDefault()
+    this.isShiftPush = false
+  }
+
+  keyEnterShift() {
+    this.isShiftPush = true
+  }
+
+  @NextTick('scrollYBottom')
   sendMessage() {
+    const chatLog = this.chat
+    this.autoScroll =
+      chatLog.scrollHeight - chatLog.scrollTop <= chatLog.clientHeight
+
     this.msg = this.msg.trim()
     if (this.socket != null && this.msg) {
       const message = {
@@ -62,7 +123,71 @@ export default class Chat extends Vue {
       this.msg = ''
     }
   }
+
+  scrollYBottom() {
+    const chatLog = this.chat
+    if (this.autoScroll) {
+      chatLog.scrollTop = chatLog.scrollHeight
+    }
+  }
 }
 </script>
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+filed-height = 3rem
+.loading
+  display none
+
+.message
+  position absolute
+  right 0
+  bottom 0
+  width 30%
+  max-width 300px
+  height 40%
+  max-height 370px
+  background #ddd
+.field
+  height filed-height
+  box-sizing border-box
+  .field-frame
+    padding 2px
+    height 100%
+    box-sizing border-box
+    .input
+      box-sizing border-box
+      resize none
+      outline 0
+      vertical-align top
+      width calc(75% - 8px)
+      height 100%
+      padding 0
+    .button
+      margin 0
+      height 100%
+      width 25%
+
+.chat
+  height "calc(100% - %s)" % filed-height
+  padding 2px
+  box-sizing border-box
+  .chat-frame
+    padding 2px
+    border 2px solid black
+    box-sizing border-box
+    height 100%
+    overflow-y scroll
+    .content
+      color black
+      &:not(:last-child)
+        border-bottom 1px solid black
+      .name
+        font-size 0.7rem
+        width 100%
+        overflow hidden
+        white-space nowrap
+        text-overflow ellipsis
+      .text
+        font-size 0.8rem
+        overflow-wrap break-word
+</style>

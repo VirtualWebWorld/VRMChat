@@ -1,14 +1,17 @@
 {
   "name": "vrmchat",
   "version": "1.0.0",
-  "description": "## Link https://qiita.com/pure-adachi/items/c2c5730560650c80a5e0 https://qiita.com/paranishian/items/1be71034cfdf58b9ecf0 https://reffect.co.jp/react/front-react-back-node",
+  "description": "vrmchat",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run build:client && npm run dev:server",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && yarn dev",
+    "build:client": "cd client && yarn build",
     "prestart": "cd server && npm i",
     "start": "cd server && npm run start",
     "heroku-postbuild": "cd client && npm i && npm run build",
+    "lint": "cd client && yarn lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

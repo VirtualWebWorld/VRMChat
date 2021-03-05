@@ -1,14 +1,14 @@
 <template>
-  <canvas ref="threeCanvas" class="canvas" />
+  <canvas ref="threeCanvas" class="canvas" @mousedown="keyLockFree" />
 </template>
 
 <script lang="ts">
-import { Component, Ref, Vue } from 'nuxt-property-decorator'
-import { io, Socket } from 'socket.io-client'
-import { VRMData, VRMState, Direction } from '../domain'
+import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
+import { Socket } from 'socket.io-client'
+import { VRMData, VRMState } from '../domain'
+import Direction from './js/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
-declare let process: any
 
 @Component({})
 export default class Three extends Vue {
@@ -18,7 +18,7 @@ export default class Three extends Vue {
   threeMain!: ThreeMain
   va!: VAvatar
 
-  socket: Socket = io(`${process.env.baseUrl}`)
+  socket: Socket = this.$store.getters.socket
   vrmArr: VRMData[] = []
 
   keyFront: string = 'w'
@@ -26,16 +26,28 @@ export default class Three extends Vue {
   keyBack: string = 's'
   keyRight: string = 'd'
   keyCamera: string = 'F4'
-  keyArr: { [key: string]: boolean } = {}
+  keyLock = false
 
   moveDirection: Direction = new Direction()
   cameraChanging: boolean = false
+
+  /** computed() */
+  get cFlag() {
+    return this.$store.getters.commentFlag
+  }
+
+  /** watch() */
+  @Watch('cFlag')
+  commentForcus() {
+    this.keyLock = this.cFlag
+    this.threeMain.controls.enabled = !this.cFlag
+  }
 
   /** mounted() */
   async mounted() {
     this.threeMain = new ThreeMain(this.threeCanvas)
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
-    await this.va.loadAvater()
+    await this.va.loadAvater(this.$store)
 
     const firstData: VRMData = {
       id: this.socket.id,
@@ -73,16 +85,20 @@ export default class Three extends Vue {
         }
       })
 
-    window.addEventListener('keydown', this.keyDown)
-    window.addEventListener('keyup', this.keyUp)
+    window.addEventListener('keydown', (e) => {
+      this.keyState('down', e)
+    })
+    window.addEventListener('keyup', (e) => {
+      this.keyState('up', e)
+    })
     window.addEventListener('resize', () => {
       this.threeMain.renderer.setSize(window.innerWidth, window.innerHeight)
       this.threeMain.camera.aspect = window.innerWidth / window.innerHeight
       this.threeMain.camera.updateProjectionMatrix()
     })
-    window.addEventListener('mouseleave', () => {
-      for (const i in this.keyArr) {
-        this.keyArr[i] = false
+    document.addEventListener('mouseleave', () => {
+      for (const i in this.moveDirection.keyArr) {
+        this.moveDirection.keyArr[i] = false
       }
     })
 
@@ -90,19 +106,36 @@ export default class Three extends Vue {
   }
 
   /** methods() */
+  keyLockFree() {
+    this.$store.commit('isComment', false)
+  }
+
+  keyState(state: string, e: KeyboardEvent) {
+    if (!this.keyLock) {
+      switch (state) {
+        case 'down':
+          this.keyDown(e)
+          break
+        case 'up':
+          this.keyUp(e)
+          break
+      }
+    }
+  }
+
   keyDown(e: KeyboardEvent) {
     switch (e.key) {
       case this.keyFront:
-        this.moveDirection.moveFront()
+        this.moveDirection.keyArr.front = true
         break
       case this.keyLeft:
-        this.moveDirection.moveLeft()
+        this.moveDirection.keyArr.left = true
         break
       case this.keyBack:
-        this.moveDirection.moveBack()
+        this.moveDirection.keyArr.back = true
         break
       case this.keyRight:
-        this.moveDirection.moveRight()
+        this.moveDirection.keyArr.right = true
         break
       case this.keyCamera:
         if (!this.cameraChanging) {
@@ -110,18 +143,26 @@ export default class Three extends Vue {
           this.va.cameraChange()
         }
         break
+      case 'Enter':
+        this.$store.commit('isComment', true)
+        e.preventDefault()
+        break
     }
   }
 
   keyUp(e: KeyboardEvent) {
     switch (e.key) {
       case this.keyFront:
-      case this.keyBack:
-        this.moveDirection.stopY()
+        this.moveDirection.keyArr.front = false
         break
       case this.keyLeft:
+        this.moveDirection.keyArr.left = false
+        break
+      case this.keyBack:
+        this.moveDirection.keyArr.back = false
+        break
       case this.keyRight:
-        this.moveDirection.stopX()
+        this.moveDirection.keyArr.right = false
         break
       case this.keyCamera:
         this.cameraChanging = false

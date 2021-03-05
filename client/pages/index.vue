@@ -1,7 +1,8 @@
 <template>
   <div>
     <Three />
-    <!-- <Chat /> -->
+    <Chat />
+    <Loading />
   </div>
 </template>
 
