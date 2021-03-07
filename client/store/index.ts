@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client'
 export const strict = false
 
 interface State {
+  name: string
   load: number
   socket: Socket
   commentFlag: boolean
@@ -9,6 +10,7 @@ interface State {
 }
 
 export const state = (): State => ({
+  name: '',
   load: 0,
   socket: io(`${process.env.baseUrl}`),
   commentFlag: false,
@@ -16,6 +18,9 @@ export const state = (): State => ({
 })
 
 export const mutations = {
+  setName: (state: any, name: string) => {
+    state.name = name
+  },
   loadCount: (state: any, num: number) => {
     state.load = num
   },
@@ -28,6 +33,9 @@ export const mutations = {
 }
 
 export const getters = {
+  name: (state: State) => {
+    return state.name
+  },
   load: (state: State) => {
     return state.load
   },

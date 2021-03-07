@@ -8,12 +8,24 @@ export default {
     htmlAttrs: {
       lang: 'en',
     },
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+    meta: [{
+        charset: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      {
+        hid: 'description',
+        name: 'description',
+        content: '',
+      },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    }, ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -34,10 +46,17 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/style-resources'],
+  modules: ['@nuxtjs/axios', '@nuxtjs/proxy', '@nuxtjs/style-resources'],
 
   env: {
     baseUrl: process.env.BASE_URL || 'http://localhost:8000',
+  },
+
+  axios: {
+    proxy: true
+  },
+  proxy: {
+    '/upload': 'http://localhost:8000'
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
