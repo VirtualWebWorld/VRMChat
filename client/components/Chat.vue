@@ -50,7 +50,6 @@ export default class Chat extends Vue {
 
   /** computed() */
   get isLoadFlag() {
-    console.log(1)
     return this.$store.getters.isLoad
   }
 

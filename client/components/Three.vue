@@ -54,7 +54,10 @@ export default class Three extends Vue {
   async mounted() {
     this.threeMain = new ThreeMain(this.threeCanvas)
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
-    await this.va.loadAvater(this.$store)
+    await this.va.loadAvater(
+      this.$store,
+      this.modelPath(this.$store.getters.fileName)
+    )
 
     this.socket
       .emit('join-ping')
@@ -107,6 +110,10 @@ export default class Three extends Vue {
   }
 
   /** methods() */
+  modelPath(path: string) {
+    return process.env.baseUrl + '/models/' + path + '.vrm'
+  }
+
   keyLockFree() {
     this.$store.commit('isComment', false)
   }
@@ -172,7 +179,7 @@ export default class Three extends Vue {
   }
 
   async newVRMLoad(data: VRMData) {
-    const model = await this.va.loadAvaterModel(data.vrm)
+    const model = await this.va.loadAvaterModel(this.modelPath(data.vrm))
     const vrmData = {
       id: data.id,
       name: data.name,

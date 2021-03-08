@@ -21,9 +21,8 @@ export default class VAvatar {
     this.clock.start()
   }
 
-  async loadAvater(store: any) {
+  async loadAvater(store: any, path: string) {
     this.store = store
-    const path = store.getters.fileName
     this.vrm = await this.loadAvaterModel(path)
     this.camera = new Camera(this.three, this.vrm)
   }
@@ -57,16 +56,14 @@ export default class VAvatar {
   }
 
   loadVRM(path: string): Promise<any> {
-    const urlPath = 'http://localhost:8000/models/' + path + '.vrm'
     return new Promise((resolve) => {
       this.loader.load(
-        urlPath,
+        path,
         (gltf) => {
           resolve(gltf)
         },
         (progress) => {
           const par = Math.floor((progress.loaded / progress.total) * 100)
-          console.log('load')
           this.store.commit('loadCount', par)
         },
         (error) => {

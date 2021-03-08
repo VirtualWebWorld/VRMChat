@@ -61,7 +61,6 @@ export default class Camera {
 
   cameraChange() {
     this.cameraModeNum = (this.cameraModeNum + 1) % this.cameraMode.length
-    console.log('camera mode:' + this.cameraMode[this.cameraModeNum])
     if (this.cameraMode[this.cameraModeNum] === 'TPS') {
       this.controls.reset()
       this.controls.enabled = true
