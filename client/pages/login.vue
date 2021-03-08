@@ -10,6 +10,7 @@
         required
       />
       <input
+        ref="file"
         type="file"
         name="file"
         accept=".vrm"
@@ -22,17 +23,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
-// import { $axios } from '~/utils/axios'
-// import {NuxtAxiosInstance} from '@nuxtjs/axios'
+import { Component, Ref, Vue } from 'nuxt-property-decorator'
 interface Event<T = EventTarget> {
   target: T
 }
 
 @Component({})
 export default class Login extends Vue {
+  @Ref() fileE!: HTMLInputElement
+
+  /** data() */
   name: string = ''
-  file: Blob | null = null
+  file: File | null = null
 
   /** mounted() */
   mounted() {
@@ -54,14 +56,29 @@ export default class Login extends Vue {
   }
 
   async submit() {
-    const fd = new FormData()
-    fd.append('name', this.name)
-    fd.append('file', this.file as Blob)
-    await this.$axios.$post('/upload', fd, {
-      headers: {
-        'content-type': 'multipart/form-data',
-      },
-    })
+    if (this.getExt(this.file!.name) === 'vrm') {
+      const fileName = this.randomString()
+      this.$store.commit('setName', this.name)
+      this.$store.commit('setFileName', fileName)
+      const fd = new FormData()
+      fd.append('id', this.$store.getters.socket.id)
+      fd.append('name', this.name)
+      fd.append('fileName', fileName)
+      fd.append('file', this.file as Blob)
+      await this.$axios.$post('/upload', fd, {
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      })
+      this.$router.push('/')
+    } else {
+      window.alert('Please select the correct file.')
+      this.fileE.value = ''
+    }
+  }
+
+  randomString() {
+    return Math.random().toString(36).slice(-8)
   }
 }
 </script>

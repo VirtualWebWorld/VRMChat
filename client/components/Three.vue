@@ -5,10 +5,17 @@
 <script lang="ts">
 import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
+import { VRM } from '@pixiv/three-vrm'
 import { VRMData, VRMState } from '../domain'
 import Direction from './js/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
+
+interface VRMAvatarData {
+  id: string
+  name: string
+  vrm: VRM
+}
 
 @Component({})
 export default class Three extends Vue {
@@ -19,7 +26,7 @@ export default class Three extends Vue {
   va!: VAvatar
 
   socket: Socket = this.$store.getters.socket
-  vrmArr: VRMData[] = []
+  vrmArr: VRMAvatarData[] = []
 
   keyFront: string = 'w'
   keyLeft: string = 'a'
@@ -49,16 +56,10 @@ export default class Three extends Vue {
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
     await this.va.loadAvater(this.$store)
 
-    const firstData: VRMData = {
-      id: this.socket.id,
-      name: 'a',
-      vrm: null,
-    }
-
     this.socket
       .emit('join-ping')
-      .emit('send-vrm', firstData)
-      .on('join-pong', (data: any[]) => {
+      .emit('send-vrm', this.socket.id)
+      .on('join-pong', (data: VRMData[]) => {
         data.forEach(async (element) => {
           await this.newVRMLoad(element)
         })
@@ -171,11 +172,14 @@ export default class Three extends Vue {
   }
 
   async newVRMLoad(data: VRMData) {
-    const gltf = await this.va.loadVRM()
-    data.vrm = await this.va.loadModel(gltf)
-    this.va.vrmSet(data.vrm)
-    this.vrmArr.push(data)
-    this.threeMain.scene.add(data.vrm!.scene)
+    const model = await this.va.loadAvaterModel(data.vrm)
+    const vrmData = {
+      id: data.id,
+      name: data.name,
+      vrm: model,
+    }
+    this.vrmArr.push(vrmData)
+    this.threeMain.scene.add(vrmData.vrm!.scene)
   }
 
   loop() {

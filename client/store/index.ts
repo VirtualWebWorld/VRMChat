@@ -3,6 +3,7 @@ export const strict = false
 
 interface State {
   name: string
+  fileName: string
   load: number
   socket: Socket
   commentFlag: boolean
@@ -11,6 +12,7 @@ interface State {
 
 export const state = (): State => ({
   name: '',
+  fileName: '',
   load: 0,
   socket: io(`${process.env.baseUrl}`),
   commentFlag: false,
@@ -20,6 +22,9 @@ export const state = (): State => ({
 export const mutations = {
   setName: (state: any, name: string) => {
     state.name = name
+  },
+  setFileName: (state: any, name: string) => {
+    state.fileName = name
   },
   loadCount: (state: any, num: number) => {
     state.load = num
@@ -35,6 +40,9 @@ export const mutations = {
 export const getters = {
   name: (state: State) => {
     return state.name
+  },
+  fileName: (state: State) => {
+    return state.fileName
   },
   load: (state: State) => {
     return state.load
