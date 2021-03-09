@@ -3,6 +3,7 @@ import { Server, Socket } from 'socket.io'
 import { VRMData, VRMState } from '../../client/domain'
 import path from 'path'
 import multer from 'multer'
+import fs from 'fs'
 import { Response } from 'express-serve-static-core'
 
 const app = express()
@@ -58,6 +59,9 @@ io.on('connection', (socket: Socket) => {
     })
     .on('disconnect', () => {
       socket.broadcast.emit('old-vrm', socketArr.get(socket.id))
+      fs.unlinkSync(
+        __dirname + '/models/' + socketArr.get(socket.id)?.vrm + '.vrm'
+      )
       socketArr.delete(socket.id)
       console.log('d', socket.id)
     })
