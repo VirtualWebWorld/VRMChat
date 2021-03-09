@@ -1,6 +1,6 @@
 import express from 'express'
 import { Server, Socket } from 'socket.io'
-import { VRMData, VRMState } from '../../client/domain'
+import { Message, VRMData, VRMState } from '../../client/domain'
 import path from 'path'
 import multer from 'multer'
 import fs from 'fs'
@@ -46,6 +46,14 @@ io.on('connection', (socket: Socket) => {
         }
       }
       socket.emit('join-pong', sa)
+
+      const message: Message = {
+        name: 'Announcement',
+        text: 'Connect: ' + socketArr.get(socket.id)!.name,
+        color: '#FF0000',
+      }
+      socket.emit('new-msg', message)
+      socket.broadcast.emit('new-msg', message)
     })
 
     //vrm
@@ -58,6 +66,13 @@ io.on('connection', (socket: Socket) => {
       socket.broadcast.emit('new-vrm-data', data)
     })
     .on('disconnect', () => {
+      const message: Message = {
+        name: 'Announcement',
+        text: 'Disconnect: ' + socketArr.get(socket.id)!.name,
+        color: '#FF0000',
+      }
+      socket.broadcast.emit('new-msg', message)
+
       socket.broadcast.emit('old-vrm', socketArr.get(socket.id))
       fs.unlinkSync(
         __dirname + '/models/' + socketArr.get(socket.id)?.vrm + '.vrm'

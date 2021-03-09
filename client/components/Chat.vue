@@ -3,8 +3,12 @@
     <div class="chat">
       <div ref="chat" class="chat-frame">
         <div v-for="(msg, index) in msgs" :key="index" class="content">
-          <div class="name">{{ msg.name }}</div>
-          <div class="text">{{ msg.text }}</div>
+          <div class="name" :style="`color:` + msg.color + `;`">
+            {{ msg.name }}
+          </div>
+          <div class="text" :style="`color:` + msg.color + `;`">
+            {{ msg.text }}
+          </div>
         </div>
       </div>
     </div>
@@ -29,11 +33,7 @@
 <script lang="ts">
 import { Component, NextTick, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
-
-export interface Message {
-  name: string
-  text: string
-}
+import { Message } from '../domain'
 
 @Component({})
 export default class Chat extends Vue {
@@ -114,8 +114,9 @@ export default class Chat extends Vue {
     this.msg = this.msg.trim()
     if (this.socket != null && this.msg) {
       const message = {
-        name: this.socket.id,
+        name: this.$store.getters.name,
         text: this.msg,
+        color: '#000000',
       }
       this.msgs.push(message)
       this.socket.emit('send-msg', message)
