@@ -37,10 +37,20 @@
         </div>
       </form>
     </div>
+    <div class="links">
+      <a
+        href="https://twitter.com/teruru33550336"
+        class="link"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><fa :icon="faTwitter" />Twitter</a
+      >
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons'
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
 interface Event<T = EventTarget> {
   target: T
@@ -53,6 +63,15 @@ export default class Login extends Vue {
   /** data() */
   name: string = ''
   file: File | null = null
+
+  /** computed() */
+  get faTwitter() {
+    return faTwitter
+  }
+
+  get faGithub() {
+    return faGithub
+  }
 
   /** mounted() */
   mounted() {
@@ -103,7 +122,7 @@ export default class Login extends Vue {
 
 <style lang="stylus" scoped>
 .login-wrap
-  background #8F8F8F
+  background #A7A7A7
   height 100vh
 
 .content-wrap
@@ -111,6 +130,18 @@ export default class Login extends Vue {
   top 50%
   left 50%
   transform translateX(-50%) translateY(-50%)
+
+link-color = #006C86
+.links
+  position absolute
+  bottom  10%
+  left 50%
+  transform translateX(-50%)
+  .link
+    text-decoration none
+    color link-color
+    &:visited
+      color link-color
 
 .title
   font-size 5rem

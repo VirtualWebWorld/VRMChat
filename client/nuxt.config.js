@@ -51,7 +51,7 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/axios', '@nuxtjs/proxy', '@nuxtjs/style-resources'],
+  modules: ['@nuxtjs/axios', '@nuxtjs/proxy', '@nuxtjs/style-resources', 'nuxt-fontawesome'],
 
   env: {
     baseUrl: BASE_URL || 'http://localhost:8000',
@@ -62,6 +62,10 @@ export default {
   },
   proxy: {
     '/upload': 'http://localhost:8000'
+  },
+
+  fontawesome: {
+    component: 'fa'
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
