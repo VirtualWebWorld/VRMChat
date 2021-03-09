@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons'
+import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
 interface Event<T = EventTarget> {
   target: T
@@ -67,10 +67,6 @@ export default class Login extends Vue {
   /** computed() */
   get faTwitter() {
     return faTwitter
-  }
-
-  get faGithub() {
-    return faGithub
   }
 
   /** mounted() */
