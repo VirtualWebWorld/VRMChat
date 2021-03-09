@@ -6,6 +6,7 @@
 import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
 import { VRM } from '@pixiv/three-vrm'
+import * as THREE from 'three'
 import { VRMData, VRMState } from '../domain'
 import Direction from './js/Direction'
 import ThreeMain from './js/ThreeMain'
@@ -190,7 +191,10 @@ export default class Three extends Vue {
   }
 
   loop() {
-    this.va.move(this.moveDirection.toVector2())
+    const moveNum = this.moveDirection.toVector2()
+    if (moveNum.x !== 0 && moveNum.y !== 0) {
+      this.va.move(moveNum)
+    }
     this.va.animate()
     this.threeMain.animate()
     const positionData: VRMState = {
