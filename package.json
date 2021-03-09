@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "npm run build:client && npm run dev:server",
     "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && yarn dev",
-    "build:client": "cd client && yarn build",
+    "dev:client": "cd client && npm run dev",
+    "build:client": "cd client && npm i && npm run build",
     "prestart": "cd server && npm i",
     "start": "cd server && npm run start",
     "heroku-postbuild": "cd client && npm i && npm run build",
