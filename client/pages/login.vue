@@ -1,24 +1,42 @@
 <template>
-  <div>
-    <form @submit.prevent="submit">
-      <input
-        v-model="name"
-        type="text"
-        name="name"
-        maxlength="12"
-        placeholder="Please enter your name"
-        required
-      />
-      <input
-        ref="file"
-        type="file"
-        name="file"
-        accept=".vrm"
-        required
-        @change="selectFile"
-      />
-      <input type="submit" value="submit" />
-    </form>
+  <div class="login-wrap">
+    <div class="content-wrap">
+      <div class="title">VRMChat</div>
+      <form @submit.prevent="submit">
+        <div class="input-form">
+          name:
+          <input
+            v-model="name"
+            class="name"
+            type="text"
+            name="name"
+            maxlength="30"
+            placeholder="Please enter your name"
+            required
+          />
+          <div class="name-war">
+            ※Please use no more than 30 characters for your name
+          </div>
+        </div>
+        <div class="input-form">
+          model:
+          <input
+            id="file"
+            ref="fileE"
+            class="file"
+            type="file"
+            name="file"
+            accept=".vrm"
+            required
+            @change="selectFile"
+          />
+          <div class="file-war">※Select the one with the extension "VRM"</div>
+        </div>
+        <div>
+          <input class="submit" type="submit" value="submit" />
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -83,4 +101,39 @@ export default class Login extends Vue {
 }
 </script>
 
-<style lang="stylus" scoped></style>
+<style lang="stylus" scoped>
+.login-wrap
+  background #8F8F8F
+  height 100vh
+
+.content-wrap
+  position absolute
+  top 50%
+  left 50%
+  transform translateX(-50%) translateY(-50%)
+
+.title
+  font-size 5rem
+
+.input-form
+  margin 5px
+
+.name-war
+  font-size 0.7rem
+.name
+  width 15rem
+  appearance none
+  outline none
+  border 1px solid #aaa
+  transition: all .3s
+  padding 5px
+  &:focus
+    box-shadow 0 0 7px #1abc9c
+    border 1px solid #1abc9c
+
+.file-war
+  font-size 0.7rem
+
+.submit
+  width 100%
+</style>
