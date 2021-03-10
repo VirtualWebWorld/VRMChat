@@ -64,7 +64,7 @@ export default class Chat extends Vue {
   }
 
   @Watch('cFlag')
-  commentForcus() {
+  commentFocus() {
     if (this.cFlag) {
       this.text.focus()
       this.focusArea()

@@ -46,7 +46,7 @@ export default class Three extends Vue {
 
   /** watch() */
   @Watch('cFlag')
-  commentForcus() {
+  commentFocus() {
     this.keyLock = this.cFlag
     this.threeMain.controls.enabled = !this.cFlag
   }
