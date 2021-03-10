@@ -27,6 +27,7 @@ export default class Three extends Vue {
 
   socket: Socket = this.$store.getters.socket
   vrmArr: VRMAvatarData[] = []
+  loopAnime: number = 0
 
   keyFront: string = 'w'
   keyLeft: string = 'a'
@@ -106,7 +107,7 @@ export default class Three extends Vue {
       }
     })
 
-    this.loop()
+    this.loopAnime = requestAnimationFrame(this.loop)
   }
 
   /** methods() */
@@ -206,7 +207,7 @@ export default class Three extends Vue {
       rz: this.va.vrm.scene.rotation.z,
     }
     this.socket!.volatile.emit('send-vrm-data', positionData)
-    requestAnimationFrame(this.loop)
+    this.loopAnime = requestAnimationFrame(this.loop)
   }
 }
 </script>

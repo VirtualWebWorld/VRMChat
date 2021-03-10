@@ -1,20 +1,23 @@
 <template>
   <div>
-    <Three />
+    <Three ref="three" />
     <Chat />
     <Loading />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'nuxt-property-decorator'
+import { Component, Ref, Vue } from 'nuxt-property-decorator'
 import { Context } from '@nuxt/types'
 import { Socket } from 'socket.io-client'
 import VueRouter from 'vue-router'
+import Three from '~/components/Three.vue'
 
 Component.registerHooks(['beforeRouteLeave'])
 @Component({})
 export default class Index extends Vue {
+  @Ref() three!: Three
+
   /** data() */
   socket: Socket = this.$store.getters.socket
 
@@ -27,6 +30,7 @@ export default class Index extends Vue {
 
   beforeRouteLeave(_to: VueRouter, _from: VueRouter, next: any) {
     // this.socket.emit('tping')
+    cancelAnimationFrame(this.three.loopAnime)
     this.socket.emit('logout')
     next()
   }
