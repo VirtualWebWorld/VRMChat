@@ -53,6 +53,7 @@ export default class Loading extends Vue {
 
   /** mounted() */
   mounted() {
+    this.$store.commit('loadFlag', false)
     this.loadMain.addEventListener('animationend', () => {
       this.fadeOutEnd()
     })

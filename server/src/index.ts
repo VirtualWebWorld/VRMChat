@@ -36,6 +36,11 @@ io.on('connection', (socket: Socket) => {
   console.log(`socket_id: ${socket.id} is connected.`)
 
   socket
+    //test
+    .on('tping', () => {
+      console.log('tping')
+    })
+
     //login
     .on('join-ping', () => {
       console.log('j', socket.id)
@@ -66,19 +71,10 @@ io.on('connection', (socket: Socket) => {
       socket.broadcast.emit('new-vrm-data', data)
     })
     .on('disconnect', () => {
-      const message: Message = {
-        name: 'Announcement',
-        text: 'Disconnect: ' + socketArr.get(socket.id)!.name,
-        color: '#FF0000',
-      }
-      socket.broadcast.emit('new-msg', message)
-
-      socket.broadcast.emit('old-vrm', socketArr.get(socket.id))
-      fs.unlinkSync(
-        __dirname + '/models/' + socketArr.get(socket.id)?.vrm + '.vrm'
-      )
-      socketArr.delete(socket.id)
-      console.log('d', socket.id)
+      deleteData(socket)
+    })
+    .on('logout', () => {
+      deleteData(socket)
     })
 
     //message
@@ -87,6 +83,23 @@ io.on('connection', (socket: Socket) => {
       console.log(`receive message: ${JSON.stringify(msg)}`)
     })
 })
+
+function deleteData(socket: Socket) {
+  const socketData = socketArr.get(socket.id)
+  if (socketData !== undefined) {
+    const message: Message = {
+      name: 'Announcement',
+      text: 'Disconnect: ' + socketData.name,
+      color: '#FF0000',
+    }
+    socket.broadcast.emit('new-msg', message)
+
+    socket.broadcast.emit('old-vrm', socketData)
+    fs.unlinkSync(__dirname + '/models/' + socketData.vrm + '.vrm')
+    socketArr.delete(socket.id)
+    console.log('d', socket.id)
+  }
+}
 
 function endRes(res: Response<any, Record<string, any>, number>) {
   // res.writeHead(301, {

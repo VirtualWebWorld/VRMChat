@@ -9,7 +9,7 @@ export default class ThreeMain {
   renderer: THREE.WebGLRenderer
   scene: THREE.Scene
   camera: THREE.PerspectiveCamera
-  stats: Stats
+  // stats: Stats
   axesHelper: THREE.AxesHelper
   gridHelper: THREE.GridHelper
   controls: OrbitControls
@@ -36,7 +36,7 @@ export default class ThreeMain {
 
     this.lightHelper = new THREE.PointLightHelper(this.light)
     this.scene.add(this.lightHelper)
-    this.stats = Stats()
+    // this.stats = Stats()
     this.axesHelper = new THREE.AxesHelper(10000)
     this.scene.add(this.axesHelper)
     this.gridHelper = new THREE.GridHelper(1000, 1000)
@@ -53,17 +53,17 @@ export default class ThreeMain {
     this.camera.position.set(0, 2, 5)
     this.camera.lookAt(new THREE.Vector3(0, 0, 0))
 
-    this.stats.showPanel(0)
-    this.stats.domElement.style.position = 'absolute'
-    this.stats.domElement.style.top = '0px'
-    document.body.append(this.stats.domElement)
+    // this.stats.showPanel(0)
+    // this.stats.domElement.style.position = 'absolute'
+    // this.stats.domElement.style.top = '0px'
+    // document.body.append(this.stats.domElement)
 
     this.light.position.set(0, 20, 0)
     this.light.lookAt(new THREE.Vector3(0, 0, 0))
   }
 
   animate() {
-    this.stats.update()
+    // this.stats.update()
     this.renderer.render(this.scene, this.camera)
   }
 }

@@ -205,7 +205,7 @@ export default class Three extends Vue {
       ry: this.va.vrm.scene.rotation.y,
       rz: this.va.vrm.scene.rotation.z,
     }
-    this.socket!.emit('send-vrm-data', positionData)
+    this.socket!.volatile.emit('send-vrm-data', positionData)
     requestAnimationFrame(this.loop)
   }
 }
