@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "lint:js": "eslint --ext \".ts,.vue\" --ignore-path ../.gitignore .",
     "lint": "yarn lint:js",
-    "analyze" : "nuxt build --analyze"
+    "analyze": "nuxt build --analyze"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.1",
