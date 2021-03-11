@@ -31,6 +31,7 @@
             @change="selectFile"
           />
           <div class="file-war">※Select the one with the extension "VRM"</div>
+          <div class="file-war">※File size is up to 100MB</div>
         </div>
         <div>
           <input class="submit" type="submit" value="submit" />

@@ -114,7 +114,7 @@ app.use(express.json())
 
 app
   .post('/upload', upload.single('file'), (req, res) => {
-    console.log(req.body.fileName)
+    // console.log(req.body.fileName)
     if (!req.file) {
       res.status(400).send('No file uploaded.')
       return
