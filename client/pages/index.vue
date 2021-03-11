@@ -11,7 +11,7 @@ import { Component, Ref, Vue } from 'nuxt-property-decorator'
 import { Context } from '@nuxt/types'
 import { Socket } from 'socket.io-client'
 import VueRouter from 'vue-router'
-import Three from '~/components/Three.vue'
+import Three from '../components/Three.vue'
 
 Component.registerHooks(['beforeRouteLeave'])
 @Component({})

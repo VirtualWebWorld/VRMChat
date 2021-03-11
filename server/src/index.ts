@@ -12,12 +12,7 @@ const server = app.listen(port, () => {
   console.log(`Node.js is listening to PORT: ${port}`)
 })
 
-const io = new Server(server, {
-  cors: {
-    origin: ['http://localhost:3000', 'https://vrmchat.aktk1910.pw'],
-    methods: ['GET', 'POST'],
-  },
-})
+const io = new Server(server)
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -70,9 +65,6 @@ io.on('connection', (socket: Socket) => {
     .on('send-vrm-data', (data: VRMState) => {
       socket.broadcast.emit('new-vrm-data', data)
     })
-    .on('disconnect', () => {
-      deleteData(socket)
-    })
     .on('logout', () => {
       deleteData(socket)
     })
@@ -81,6 +73,11 @@ io.on('connection', (socket: Socket) => {
     .on('send-msg', (msg: any) => {
       socket.broadcast.emit('new-msg', msg)
       console.log(`receive message: ${JSON.stringify(msg)}`)
+    })
+
+    //disconnect
+    .on('disconnect', () => {
+      deleteData(socket)
     })
 })
 
@@ -116,7 +113,6 @@ app.use(
 app.use(express.json())
 
 app
-  .use('/', express.static(path.join(__dirname, '../../client/dist')))
   .post('/upload', upload.single('file'), (req, res) => {
     console.log(req.body.fileName)
     if (!req.file) {

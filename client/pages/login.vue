@@ -98,7 +98,7 @@ export default class Login extends Vue {
       fd.append('name', this.name)
       fd.append('fileName', fileName)
       fd.append('file', this.file as Blob)
-      await this.$axios.$post('/upload', fd, {
+      await this.$axios.$post(`${process.env.baseUrl}/upload`, fd, {
         headers: {
           'content-type': 'multipart/form-data',
         },
