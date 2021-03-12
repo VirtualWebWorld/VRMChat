@@ -12,7 +12,15 @@ const server = app.listen(port, () => {
   console.log(`Node.js is listening to PORT: ${port}`)
 })
 
-const io = new Server(server)
+const io = new Server(
+  server
+  // , {
+  //   cors: {
+  //     origin: ['http://localhost:3000'],
+  //     methods: ['GET', 'POST'],
+  //   },
+  // }
+)
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -116,12 +124,13 @@ app.use(
 app.use(express.json())
 
 app
+  .use('/', express.static(path.join(__dirname, '../../client/dist')))
   .post('/upload', upload.single('file'), (req, res) => {
     if (!req.file && req.body.fileName !== 'guest') {
       res.status(400).send('No file uploaded.')
       return
     }
-    let fileName = req.file.filename.split('.')[0]
+    let fileName = req.body.fileName
     if (fileName === 'guest') {
       fileName = defaultAvatarName
     }

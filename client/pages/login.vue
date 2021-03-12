@@ -117,11 +117,13 @@ export default class Login extends Vue {
 
   async guestLogin() {
     this.submitFlag = true
+    const name = 'GUEST-' + this.randomString()
+    this.$store.commit('setName', name)
+    this.$store.commit('setFileName', 'three-vrm-girl')
     const fd = new FormData()
     fd.append('id', this.$store.getters.socket.id)
-    fd.append('name', 'GUEST-' + this.randomString())
+    fd.append('name', name)
     fd.append('fileName', 'guest')
-    fd.append('file', null)
     await this.$axios.$post(`${process.env.baseUrl}/upload`, fd, {
       headers: {
         'content-type': 'multipart/form-data',
