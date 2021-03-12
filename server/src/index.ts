@@ -124,7 +124,7 @@ app.use(
 app.use(express.json())
 
 app
-  .use('/', express.static(path.join(__dirname, '../../client/dist')))
+  // .use('/', express.static(path.join(__dirname, '../../client/dist')))
   .post('/upload', upload.single('file'), (req, res) => {
     if (!req.file && req.body.fileName !== 'guest') {
       res.status(400).send('No file uploaded.')
