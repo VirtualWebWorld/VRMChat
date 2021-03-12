@@ -26,6 +26,7 @@ const upload = multer({ storage: storage })
 
 // connection data
 const socketArr = new Map<string, VRMData>()
+const defaultAvatarName = 'three-vrm-girl'
 
 io.on('connection', (socket: Socket) => {
   console.log(`socket_id: ${socket.id} is connected.`)
@@ -92,7 +93,9 @@ function deleteData(socket: Socket) {
     socket.broadcast.emit('new-msg', message)
 
     socket.broadcast.emit('old-vrm', socketData)
-    fs.unlinkSync(__dirname + '/models/' + socketData.vrm + '.vrm')
+    if (socketData.vrm !== defaultAvatarName) {
+      fs.unlinkSync(__dirname + '/models/' + socketData.vrm + '.vrm')
+    }
     socketArr.delete(socket.id)
     console.log('d', socket.id)
   }
@@ -114,12 +117,14 @@ app.use(express.json())
 
 app
   .post('/upload', upload.single('file'), (req, res) => {
-    // console.log(req.body.fileName)
-    if (!req.file) {
+    if (!req.file && req.body.fileName !== 'guest') {
       res.status(400).send('No file uploaded.')
       return
     }
-    const fileName = req.file.filename.split('.')[0]
+    let fileName = req.file.filename.split('.')[0]
+    if (fileName === 'guest') {
+      fileName = defaultAvatarName
+    }
     const data: VRMData = {
       id: req.body.id,
       name: req.body.name,

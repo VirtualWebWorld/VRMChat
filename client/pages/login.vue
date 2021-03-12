@@ -44,6 +44,13 @@
           />
         </div>
       </form>
+      <input
+        class="guest-button"
+        type="button"
+        value="GUEST LOGIN"
+        :disabled="submitFlag"
+        @click="guestLogin"
+      />
     </div>
     <div class="links">
       <a
@@ -106,6 +113,22 @@ export default class Login extends Vue {
         this.fileWar = true
       }
     }
+  }
+
+  async guestLogin() {
+    this.submitFlag = true
+    const fd = new FormData()
+    fd.append('id', this.$store.getters.socket.id)
+    fd.append('name', 'GUEST-' + this.randomString())
+    fd.append('fileName', 'guest')
+    fd.append('file', null)
+    await this.$axios.$post(`${process.env.baseUrl}/upload`, fd, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    this.$router.push('/')
+    this.submitFlag = false
   }
 
   async submit() {
@@ -177,6 +200,7 @@ link-color = #006C86
 
 .title
   font-size 5rem
+  text-align center
 
 .input-form
   margin 5px
@@ -201,5 +225,8 @@ link-color = #006C86
   color red
 
 .submit
+  width 100%
+
+.guset-button
   width 100%
 </style>
