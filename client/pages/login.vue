@@ -11,11 +11,11 @@
             type="text"
             name="name"
             maxlength="30"
+            :disabled="submitFlag"
             placeholder="Please enter your name"
-            required
           />
-          <div class="name-war">
-            ※Please use no more than 30 characters for your name
+          <div :class="[{ warning: nameWar && name === '' }, 'caution']">
+            <div>Please use no more than 30 characters for your name</div>
           </div>
         </div>
         <div class="input-form">
@@ -27,14 +27,21 @@
             type="file"
             name="file"
             accept=".vrm"
-            required
+            :disabled="submitFlag"
             @change="selectFile"
           />
-          <div class="file-war">※Select the one with the extension "VRM"</div>
-          <div class="file-war">※File size is up to 100MB</div>
+          <div :class="[{ warning: fileWar }, 'caution']">
+            <div>Select the one with the extension "VRM"</div>
+            <div>Maximum file size is 100MB</div>
+          </div>
         </div>
         <div>
-          <input class="submit" type="submit" value="submit" />
+          <input
+            class="submit"
+            type="submit"
+            value="LOGIN"
+            :disabled="submitFlag"
+          />
         </div>
       </form>
     </div>
@@ -53,6 +60,7 @@
 <script lang="ts">
 import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
+import { NuxtAxiosInstance } from '@nuxtjs/axios'
 interface Event<T = EventTarget> {
   target: T
 }
@@ -64,6 +72,10 @@ export default class Login extends Vue {
   /** data() */
   name: string = ''
   file: File | null = null
+  fileWar = false
+  nameWar = false
+  submitFlag = false
+  $axios: NuxtAxiosInstance
 
   /** computed() */
   get faTwitter() {
@@ -83,14 +95,38 @@ export default class Login extends Vue {
   }
 
   selectFile(e: Event<HTMLInputElement>) {
-    const file = e.target.files
-    if (file !== null) {
-      this.file = file[0]
+    const fileList = e.target.files
+    if (fileList !== null) {
+      const file = fileList[0]
+      if (file.size <= 104857600) {
+        // 100MB
+        this.file = file
+        this.fileWar = false
+      } else {
+        this.fileWar = true
+      }
     }
   }
 
   async submit() {
-    if (this.getExt(this.file!.name) === 'vrm') {
+    this.submitFlag = true
+    let warFlag = true
+    if (this.file === null) {
+      this.fileE.value = ''
+      this.fileWar = true
+      warFlag = false
+    } else if (this.getExt(this.file!.name) !== 'vrm') {
+      this.fileE.value = ''
+      this.fileWar = true
+      warFlag = false
+    }
+
+    if (this.name === '') {
+      this.nameWar = true
+      warFlag = false
+    }
+
+    if (warFlag) {
       const fileName = this.randomString()
       this.$store.commit('setName', this.name)
       this.$store.commit('setFileName', fileName)
@@ -105,10 +141,9 @@ export default class Login extends Vue {
         },
       })
       this.$router.push('/')
-    } else {
-      window.alert('Please select the correct file.')
-      this.fileE.value = ''
     }
+
+    this.submitFlag = false
   }
 
   randomString() {
@@ -146,8 +181,6 @@ link-color = #006C86
 .input-form
   margin 5px
 
-.name-war
-  font-size 0.7rem
 .name
   width 15rem
   appearance none
@@ -159,8 +192,13 @@ link-color = #006C86
     box-shadow 0 0 7px #1abc9c
     border 1px solid #1abc9c
 
-.file-war
+.caution
   font-size 0.7rem
+  & > div::before
+    content '※'
+
+.warning
+  color red
 
 .submit
   width 100%
