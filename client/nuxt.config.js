@@ -62,7 +62,7 @@ export default {
   },
   proxy: {
     '/upload': {
-      target: process.env.baseUrl
+      target: BASE_URL || 'http://localhost:8000'
     }
   },
 
