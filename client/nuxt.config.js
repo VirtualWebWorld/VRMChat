@@ -61,7 +61,9 @@ export default {
     proxy: true
   },
   proxy: {
-    '/upload': 'http://localhost:8000'
+    '/upload': {
+      target: process.env.baseUrl
+    }
   },
 
   fontawesome: {
