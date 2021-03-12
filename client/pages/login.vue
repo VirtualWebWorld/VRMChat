@@ -60,6 +60,7 @@
 <script lang="ts">
 import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { Component, Ref, Vue } from 'nuxt-property-decorator'
+import { NuxtAxiosInstance } from '@nuxtjs/axios'
 interface Event<T = EventTarget> {
   target: T
 }
@@ -74,6 +75,7 @@ export default class Login extends Vue {
   fileWar = false
   nameWar = false
   submitFlag = false
+  $axios: NuxtAxiosInstance
 
   /** computed() */
   get faTwitter() {
