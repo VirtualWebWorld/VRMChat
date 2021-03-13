@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, 'models'))
   },
   filename: function (req, file, cb) {
-    cb(null, '' + req.body.fileName + '.vrm')
+    cb(null, `${req.body.fileName}.vrm`)
   },
 })
 const upload = multer({ storage: storage })
@@ -58,7 +58,7 @@ io.on('connection', (socket: Socket) => {
 
       const message: Message = {
         name: 'Announcement',
-        text: 'Connect: ' + socketArr.get(socket.id)!.name,
+        text: 'Connect: ' + socketArr.get(socket.id)?.name,
         color: '#FF0000',
       }
       socket.emit('new-msg', message)
@@ -79,7 +79,7 @@ io.on('connection', (socket: Socket) => {
     })
 
     //message
-    .on('send-msg', (msg: any) => {
+    .on('send-msg', (msg: Message) => {
       socket.broadcast.emit('new-msg', msg)
       console.log(`receive message: ${JSON.stringify(msg)}`)
     })
@@ -109,7 +109,7 @@ function deleteData(socket: Socket) {
   }
 }
 
-function endRes(res: Response<any, Record<string, any>, number>) {
+function endRes(res: Response) {
   // res.writeHead(301, {
   //   Location: 'http://localhost:8000/',
   // })
@@ -149,7 +149,7 @@ app
   })
 
   // 404 error
-  .use((req, res, next) => {
+  .use((req, res) => {
     res.status(404).send('Sorry cant find that!')
   })
 

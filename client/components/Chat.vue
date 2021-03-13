@@ -113,7 +113,7 @@ export default class Chat extends Vue {
 
     this.msg = this.msg.trim()
     if (this.socket != null && this.msg) {
-      const message = {
+      const message: Message = {
         name: this.$store.getters.name,
         text: this.msg,
         color: '#000000',
