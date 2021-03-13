@@ -37,6 +37,8 @@ export default class Camera {
       z: 0,
     }
 
+    this.moveCamera()
+
     this.isMouseDown = false
 
     window.addEventListener('mousedown', (e) => {
@@ -94,17 +96,7 @@ export default class Camera {
     }
   }
 
-  cameraTPS(x: number, z: number) {
-    this.camera.position.x += x
-    this.camera.position.z += z
-    this.controls.target.set(
-      this.vrm.scene.position.x,
-      this.vrm.scene.position.y,
-      this.vrm.scene.position.z
-    )
-  }
-
-  cameraFPS() {
+  headPosition() {
     const lp = this.vrm.humanoid
       ?.getBoneNode(VRMSchema.HumanoidBoneName.LeftEye)
       ?.getWorldPosition(new THREE.Vector3())
@@ -118,6 +110,18 @@ export default class Camera {
       y: (lp!.y + rp!.y) / 2,
       z: (lp!.z + rp!.z) / 2 - dis * Math.cos(an),
     }
+    return p
+  }
+
+  cameraTPS(x: number, z: number) {
+    this.camera.position.x += x
+    this.camera.position.z += z
+    const p = this.headPosition()
+    this.controls.target.set(p.x, p.y, p.z)
+  }
+
+  cameraFPS() {
+    const p = this.headPosition()
     this.camera.position.set(p.x, p.y, p.z)
   }
 

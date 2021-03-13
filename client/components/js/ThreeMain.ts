@@ -51,7 +51,9 @@ export default class ThreeMain {
     this.renderer.setSize(this.width, this.height)
 
     this.camera.position.set(0, 2, 5)
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    this.controls.minDistance = 1
+    this.controls.maxDistance = 50
 
     // this.stats.showPanel(0)
     // this.stats.domElement.style.position = 'absolute'
