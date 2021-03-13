@@ -1,67 +1,50 @@
-<template>
-  <div class="login-wrap">
-    <div class="content-wrap">
-      <div class="title">VRMChat</div>
-      <form @submit.prevent="submit">
-        <div class="input-form">
-          name:
-          <input
-            v-model="name"
-            class="name"
-            type="text"
-            name="name"
-            maxlength="30"
-            :disabled="submitFlag"
-            placeholder="Please enter your name"
-          />
-          <div :class="[{ warning: nameWar && name === '' }, 'caution']">
-            <div>Please use no more than 30 characters for your name</div>
-          </div>
-        </div>
-        <div class="input-form">
-          model:
-          <input
-            id="file"
-            ref="fileE"
-            class="file"
-            type="file"
-            name="file"
-            accept=".vrm"
-            :disabled="submitFlag"
-            @change="selectFile"
-          />
-          <div :class="[{ warning: fileWar }, 'caution']">
-            <div>Select the one with the extension "VRM"</div>
-            <div>Maximum file size is 100MB</div>
-          </div>
-        </div>
-        <div>
-          <input
-            class="submit"
-            type="submit"
-            value="LOGIN"
-            :disabled="submitFlag"
-          />
-        </div>
-      </form>
-      <input
-        class="guest-button"
-        type="button"
-        value="GUEST LOGIN"
-        :disabled="submitFlag"
-        @click="guestLogin"
-      />
-    </div>
-    <div class="links">
-      <a
-        href="https://twitter.com/teruru33550336"
-        class="link"
-        target="_blank"
-        rel="noopener noreferrer"
-        ><fa :icon="faTwitter" />Twitter</a
-      >
-    </div>
-  </div>
+<template lang="pug">
+.login-wrap
+  .content-wrap
+    .title VRMChat
+    form(@submit.prevent='submit')
+      .input-form
+        | name:
+        input.name(
+          v-model='name',
+          type='text',
+          name='name',
+          maxlength='30',
+          :disabled='submitFlag',
+          placeholder='Please enter your name'
+        )
+        div(:class='[{ warning: nameWar && name === "" }, "caution"]')
+          div Please use no more than 30 characters for your name
+      .input-form
+        | model:
+        input#file.file(
+          ref='fileE',
+          type='file',
+          name='file',
+          accept='.vrm',
+          :disabled='submitFlag',
+          @change='selectFile'
+        )
+        div(:class='[{ warning: fileWar }, "caution"]')
+          div Select the one with the extension &quot;VRM&quot;
+          div Maximum file size is 100MB
+      div
+        input.submit(type='submit', value='LOGIN', :disabled='submitFlag')
+    hr.hr(noshade='')
+    input.guest-button(
+      type='button',
+      value='GUEST LOGIN',
+      :disabled='submitFlag',
+      @click='guestLogin'
+    )
+  .links
+    a.link(
+      href='https://twitter.com/teruru33550336',
+      target='_blank',
+      rel='noopener noreferrer'
+    )
+      fa(:icon='faTwitter')
+      | Twitter
 </template>
 
 <script lang="ts">
@@ -229,6 +212,10 @@ link-color = #006C86
 .submit
   width 100%
 
-.guset-button
+.guest-button
   width 100%
+
+.hr
+  width 100%
+  border-color black
 </style>

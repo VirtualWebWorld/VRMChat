@@ -1,24 +1,20 @@
-<template>
-  <div
-    ref="loadMain"
-    :class="['loading-wrap', { 'anime-end': animeEnd }, { complites: isLoad }]"
-  >
-    <div class="loading-text">
-      <div class="text">Now Loading</div>
-      <div class="text-d">.</div>
-      <div class="text-d">.</div>
-      <div class="text-d">.</div>
-    </div>
-    <div class="loading-bar">
-      <div ref="lbf" class="loading-bar-front"></div>
-      <div class="loading-bar-back"></div>
-    </div>
-    <div class="loading-fra">
-      <div id="numer" class="loading-numer">{{ loadDone }}</div>
-      /
-      <div class="loading-denom">{{ loadNum }}</div>
-    </div>
-  </div>
+<template lang="pug">
+div(
+  ref='loadMain',
+  :class='["loading-wrap", { "anime-end": animeEnd }, { complites: isLoad }]'
+)
+  .loading-text
+    .text Now Loading
+    .text-d .
+    .text-d .
+    .text-d .
+  .loading-bar
+    .loading-bar-front(ref='lbf')
+    .loading-bar-back
+  .loading-fra
+    #numer.loading-numer {{ loadDone }}
+    | /
+    .loading-denom {{ loadNum }}
 </template>
 
 <script lang="ts">

@@ -1,33 +1,24 @@
-<template>
-  <div :class="[{ loading: isLoad }, 'message']">
-    <div class="chat">
-      <div ref="chat" class="chat-frame">
-        <div v-for="(msg, index) in msgs" :key="index" class="content">
-          <div class="name" :style="`color:` + msg.color + `;`">
-            {{ msg.name }}
-          </div>
-          <div class="text" :style="`color:` + msg.color + `;`">
-            {{ msg.text }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-frame">
-        <textarea
-          ref="text"
-          v-model="msg"
-          class="input"
-          placeholder="message"
-          @focus="focusArea"
-          @keydown.enter.exact="keyDownEnter"
-          @keyup.enter.exact="keyUpEnter"
-          @keydown.enter.shift.exact="keyEnterShift"
-        />
-        <button class="button" @click="sendMessage">送信</button>
-      </div>
-    </div>
-  </div>
+<template lang="pug">
+div(:class='[{ loading: isLoad }, "message"]')
+  .chat
+    .chat-frame(ref='chat')
+      .content(v-for='(msg, index) in msgs', :key='index')
+        .name(:style='`color:${msg.color};`')
+          | {{ msg.name }}
+        .text(:style='`color:${msg.color};`')
+          | {{ msg.text }}
+  .field
+    .field-frame
+      textarea.input(
+        ref='text',
+        v-model='msg',
+        placeholder='message',
+        @focus='focusArea',
+        @keydown.enter.exact='keyDownEnter',
+        @keyup.enter.exact='keyUpEnter',
+        @keydown.enter.shift.exact='keyEnterShift'
+      )
+      button.button(@click='sendMessage') Send
 </template>
 
 <script lang="ts">

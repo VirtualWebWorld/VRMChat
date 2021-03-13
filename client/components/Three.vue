@@ -1,5 +1,5 @@
-<template>
-  <canvas ref="threeCanvas" class="canvas" @mousedown="keyLockFree" />
+<template lang="pug">
+canvas.canvas(ref='threeCanvas', @mousedown='keyLockFree')
 </template>
 
 <script lang="ts">

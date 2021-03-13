@@ -1,9 +1,8 @@
-<template>
-  <div>
-    <Three ref="three" />
-    <Chat />
-    <Loading />
-  </div>
+<template lang="pug">
+div
+  Three(ref='three')
+  Chat
+  Loading
 </template>
 
 <script lang="ts">
