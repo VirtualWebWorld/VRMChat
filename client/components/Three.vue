@@ -7,7 +7,7 @@ import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
 import { VRM } from '@pixiv/three-vrm'
 import { VRMData, VRMState } from '../domain'
-import Direction from './js/Direction'
+import Direction from './js/avatarcontrol/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
 
