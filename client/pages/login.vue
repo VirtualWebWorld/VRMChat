@@ -107,7 +107,7 @@ export default class Login extends Vue {
     fd.append('id', this.$store.getters.socket.id)
     fd.append('name', name)
     fd.append('fileName', 'guest')
-    await this.$axios.$post(`${process.env.baseUrl}/upload`, fd, {
+    await this.$axios.$post(`${process.env.axiosUrl}/upload`, fd, {
       headers: {
         'content-type': 'multipart/form-data',
       },
@@ -143,7 +143,7 @@ export default class Login extends Vue {
       fd.append('name', this.name)
       fd.append('fileName', fileName)
       fd.append('file', this.file as Blob)
-      await this.$axios.$post(`${process.env.baseUrl}/upload`, fd, {
+      await this.$axios.$post(`${process.env.axiosUrl}/upload`, fd, {
         headers: {
           'content-type': 'multipart/form-data',
         },

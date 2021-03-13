@@ -1,10 +1,12 @@
-import express from 'express'
+import express, { NextFunction } from 'express'
 import { Server, Socket } from 'socket.io'
 import { Message, VRMData, VRMState } from '../../client/domain'
 import path from 'path'
 import multer from 'multer'
 import fs from 'fs'
 import { Response } from 'express-serve-static-core'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 8000
@@ -12,15 +14,35 @@ const server = app.listen(port, () => {
   console.log(`Node.js is listening to PORT: ${port}`)
 })
 
-const io = new Server(
-  server
-  // , {
-  //   cors: {
-  //     origin: ['http://localhost:3000'],
-  //     methods: ['GET', 'POST'],
-  //   },
-  // }
-)
+// development
+let corsOption = {}
+if (process.env.NODE_ENV === 'development') {
+  corsOption = {
+    cors: {
+      origin: ['http://localhost:3000'],
+      methods: ['GET', 'POST'],
+    },
+  }
+
+  // localhost cors
+  app.use((req, res, next): void => {
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, access_token'
+    )
+
+    // intercept OPTIONS method
+    if ('OPTIONS' === req.method) {
+      res.send(200)
+    } else {
+      next()
+    }
+  })
+}
+
+const io = new Server(server, corsOption)
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
