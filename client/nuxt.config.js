@@ -77,6 +77,7 @@ export default {
         fs: 'empty',
         net: 'empty',
       }
+      config.performance.maxAssetSize = 700000
     },
     transpile: ['three'],
     babel: {
