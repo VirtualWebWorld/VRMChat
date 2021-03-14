@@ -92,3 +92,5 @@ sw.*
 static/akatsuki1910.vrm
 package-lock.json
 yarn.lock
+server/src/models/*
+!three-vrm-girl.vrm

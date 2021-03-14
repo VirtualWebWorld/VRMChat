@@ -1,14 +1,24 @@
-<template>
-  <canvas ref="threeCanvas" class="canvas" @mousedown="keyLockFree" />
+<template lang="pug">
+canvas.canvas(ref='threeCanvas', @mousedown='keyLockFree')
 </template>
 
 <script lang="ts">
+import * as THREE from 'three'
 import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
+import { VRM } from '@pixiv/three-vrm'
 import { VRMData, VRMState } from '../domain'
-import Direction from './js/Direction'
+import Direction from './js/avatarcontrol/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
+import Nameplate from './js/Nameplate'
+
+interface VRMAvatarData {
+  id: string
+  name: string
+  vrm: VRM
+  np: THREE.Sprite
+}
 
 @Component({})
 export default class Three extends Vue {
@@ -19,7 +29,8 @@ export default class Three extends Vue {
   va!: VAvatar
 
   socket: Socket = this.$store.getters.socket
-  vrmArr: VRMData[] = []
+  vrmArr: VRMAvatarData[] = []
+  loopAnime: number = 0
 
   keyFront: string = 'w'
   keyLeft: string = 'a'
@@ -30,6 +41,7 @@ export default class Three extends Vue {
 
   moveDirection: Direction = new Direction()
   cameraChanging: boolean = false
+  np: Nameplate = new Nameplate()
 
   /** computed() */
   get cFlag() {
@@ -38,7 +50,7 @@ export default class Three extends Vue {
 
   /** watch() */
   @Watch('cFlag')
-  commentForcus() {
+  commentFocus() {
     this.keyLock = this.cFlag
     this.threeMain.controls.enabled = !this.cFlag
   }
@@ -47,18 +59,15 @@ export default class Three extends Vue {
   async mounted() {
     this.threeMain = new ThreeMain(this.threeCanvas)
     this.va = new VAvatar(this.threeMain.scene, this.threeMain)
-    await this.va.loadAvater(this.$store)
-
-    const firstData: VRMData = {
-      id: this.socket.id,
-      name: 'a',
-      vrm: null,
-    }
+    await this.va.loadAvater(
+      this.$store,
+      this.modelPath(this.$store.getters.fileName)
+    )
 
     this.socket
       .emit('join-ping')
-      .emit('send-vrm', firstData)
-      .on('join-pong', (data: any[]) => {
+      .emit('send-vrm', this.socket.id)
+      .on('join-pong', (data: VRMData[]) => {
         data.forEach(async (element) => {
           await this.newVRMLoad(element)
         })
@@ -70,6 +79,7 @@ export default class Three extends Vue {
         const vsd = this.vrmArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           this.threeMain.scene.remove(vsd.vrm!.scene)
+          this.threeMain.scene.remove(vsd.np)
         }
       })
       .on('new-vrm-data', (data: VRMState) => {
@@ -82,6 +92,11 @@ export default class Three extends Vue {
           vrm.rotation.x = data.rx
           vrm.rotation.y = data.ry
           vrm.rotation.z = data.rz
+
+          const np = vsd.np
+          np.position.x = data.x
+          np.position.y = data.y + 2
+          np.position.z = data.z
         }
       })
 
@@ -102,10 +117,14 @@ export default class Three extends Vue {
       }
     })
 
-    this.loop()
+    this.loopAnime = requestAnimationFrame(this.loop)
   }
 
   /** methods() */
+  modelPath(path: string) {
+    return process.env.baseUrl + '/models/' + path + '.vrm'
+  }
+
   keyLockFree() {
     this.$store.commit('isComment', false)
   }
@@ -171,15 +190,25 @@ export default class Three extends Vue {
   }
 
   async newVRMLoad(data: VRMData) {
-    const gltf = await this.va.loadVRM()
-    data.vrm = await this.va.loadModel(gltf)
-    this.va.vrmSet(data.vrm)
-    this.vrmArr.push(data)
-    this.threeMain.scene.add(data.vrm!.scene)
+    const model = await this.va.loadAvaterModel(this.modelPath(data.vrm))
+    const namePlate = this.np.namePlate(data.name)
+    const vrmData: VRMAvatarData = {
+      id: data.id,
+      name: data.name,
+      vrm: model,
+      np: namePlate,
+    }
+    this.vrmArr.push(vrmData)
+    this.threeMain.scene.add(vrmData.vrm!.scene)
+    vrmData.np.position.y = 2
+    this.threeMain.scene.add(vrmData.np)
   }
 
   loop() {
-    this.va.move(this.moveDirection.toVector2())
+    const moveNum = this.moveDirection.toVector2()
+    if (!(moveNum.x === 0 && moveNum.y === 0)) {
+      this.va.move(moveNum)
+    }
     this.va.animate()
     this.threeMain.animate()
     const positionData: VRMState = {
@@ -191,8 +220,8 @@ export default class Three extends Vue {
       ry: this.va.vrm.scene.rotation.y,
       rz: this.va.vrm.scene.rotation.z,
     }
-    this.socket!.emit('send-vrm-data', positionData)
-    requestAnimationFrame(this.loop)
+    this.socket!.volatile.emit('send-vrm-data', positionData)
+    this.loopAnime = requestAnimationFrame(this.loop)
   }
 }
 </script>

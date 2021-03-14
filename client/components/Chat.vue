@@ -1,39 +1,30 @@
-<template>
-  <div :class="[{ loading: isLoad }, 'message']">
-    <div class="chat">
-      <div ref="chat" class="chat-frame">
-        <div v-for="(msg, index) in msgs" :key="index" class="content">
-          <div class="name">{{ msg.name }}</div>
-          <div class="text">{{ msg.text }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-frame">
-        <textarea
-          ref="text"
-          v-model="msg"
-          class="input"
-          placeholder="message"
-          @focus="focusArea"
-          @keydown.enter.exact="keyDownEnter"
-          @keyup.enter.exact="keyUpEnter"
-          @keydown.enter.shift.exact="keyEnterShift"
-        />
-        <button class="button" @click="sendMessage">送信</button>
-      </div>
-    </div>
-  </div>
+<template lang="pug">
+div(:class='[{ loading: isLoad }, "message"]')
+  .chat
+    .chat-frame(ref='chat')
+      .content(v-for='(msg, index) in msgs', :key='index')
+        .name(:style='`color:${msg.color};`')
+          | {{ msg.name }}
+        .text(:style='`color:${msg.color};`')
+          | {{ msg.text }}
+  .field
+    .field-frame
+      textarea.input(
+        ref='text',
+        v-model='msg',
+        placeholder='message',
+        @focus='focusArea',
+        @keydown.enter.exact='keyDownEnter',
+        @keyup.enter.exact='keyUpEnter',
+        @keydown.enter.shift.exact='keyEnterShift'
+      )
+      button.button(@click='sendMessage') Send
 </template>
 
 <script lang="ts">
 import { Component, NextTick, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
-
-export interface Message {
-  name: string
-  text: string
-}
+import { Message } from '../domain'
 
 @Component({})
 export default class Chat extends Vue {
@@ -50,7 +41,6 @@ export default class Chat extends Vue {
 
   /** computed() */
   get isLoadFlag() {
-    console.log(1)
     return this.$store.getters.isLoad
   }
 
@@ -65,7 +55,7 @@ export default class Chat extends Vue {
   }
 
   @Watch('cFlag')
-  commentForcus() {
+  commentFocus() {
     if (this.cFlag) {
       this.text.focus()
       this.focusArea()
@@ -114,9 +104,10 @@ export default class Chat extends Vue {
 
     this.msg = this.msg.trim()
     if (this.socket != null && this.msg) {
-      const message = {
-        name: this.socket.id,
+      const message: Message = {
+        name: this.$store.getters.name,
         text: this.msg,
+        color: '#000000',
       }
       this.msgs.push(message)
       this.socket.emit('send-msg', message)

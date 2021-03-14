@@ -1,3 +1,8 @@
+require('dotenv').config()
+const {
+  BASE_URL
+} = process.env
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -8,12 +13,24 @@ export default {
     htmlAttrs: {
       lang: 'en',
     },
-    meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: '' },
+    meta: [{
+        charset: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      {
+        hid: 'description',
+        name: 'description',
+        content: '',
+      },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{
+      rel: 'icon',
+      type: 'image/x-icon',
+      href: '/favicon.ico',
+    }, ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -34,10 +51,22 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: ['@nuxtjs/style-resources'],
+  modules: ['@nuxtjs/axios', '@nuxtjs/proxy', '@nuxtjs/style-resources', 'nuxt-fontawesome'],
 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:8000',
+    baseUrl: BASE_URL || 'http://localhost:8000',
+    axiosUrl: BASE_URL || ''
+  },
+
+  axios: {
+    proxy: true
+  },
+  proxy: {
+    '/upload': 'http://localhost:8000'
+  },
+
+  fontawesome: {
+    component: 'fa'
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

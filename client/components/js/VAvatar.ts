@@ -1,10 +1,9 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { VRM, VRMSchema } from '@pixiv/three-vrm'
-import { Vue } from 'nuxt-property-decorator'
 import ThreeMain from './ThreeMain'
 import Camera from './avatarcontrol/Camera'
-export default class VAvatar extends Vue {
+export default class VAvatar {
   loader: GLTFLoader
   scene: THREE.Scene
   vrm!: VRM
@@ -13,9 +12,8 @@ export default class VAvatar extends Vue {
   three: ThreeMain
   clock: THREE.Clock
   camera!: Camera
-  gltf: any
+  store: any
   constructor(scene: THREE.Scene, three: ThreeMain) {
-    super()
     this.scene = scene
     this.loader = new GLTFLoader()
     this.three = three
@@ -23,14 +21,20 @@ export default class VAvatar extends Vue {
     this.clock.start()
   }
 
-  async loadAvater(store: any) {
-    this.gltf = await this.loadVRM(store)
-    this.vrm = await this.loadModel()
-    this.vrmSet(this.vrm)
+  async loadAvater(store: any, path: string) {
+    this.store = store
+    this.vrm = await this.loadAvaterModel(path)
     this.camera = new Camera(this.three, this.vrm)
   }
 
-  loadModel(gltf: any = this.gltf): Promise<VRM> {
+  async loadAvaterModel(path: string) {
+    const gltf = await this.loadVRM(path)
+    const vrm = await this.loadModel(gltf)
+    this.vrmSet(vrm)
+    return vrm
+  }
+
+  loadModel(gltf: any): Promise<VRM> {
     return new Promise((resolve) => {
       VRM.from(gltf).then((vrm) => {
         resolve(vrm)
@@ -51,19 +55,16 @@ export default class VAvatar extends Vue {
     })
   }
 
-  loadVRM(store: any = null): Promise<any> {
+  loadVRM(path: string): Promise<any> {
     return new Promise((resolve) => {
       this.loader.load(
-        // 'akatsuki1910.vrm',
-        'three-vrm-girl.vrm',
+        path,
         (gltf) => {
           resolve(gltf)
         },
         (progress) => {
           const par = Math.floor((progress.loaded / progress.total) * 100)
-          if (store !== null) {
-            store.commit('loadCount', par)
-          }
+          this.store.commit('loadCount', par)
         },
         (error) => {
           console.error(error)
