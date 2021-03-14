@@ -101,18 +101,7 @@ export default class Login extends Vue {
   async guestLogin() {
     this.submitFlag = true
     const name = 'GUEST-' + this.randomString()
-    this.$store.commit('setName', name)
-    this.$store.commit('setFileName', 'three-vrm-girl')
-    const fd = new FormData()
-    fd.append('id', this.$store.getters.socket.id)
-    fd.append('name', name)
-    fd.append('fileName', 'guest')
-    await this.$axios.$post(`${process.env.axiosUrl}/upload`, fd, {
-      headers: {
-        'content-type': 'multipart/form-data',
-      },
-    })
-    this.$router.push('/')
+    await this.postData(name, 'three-vrm-girl')
     this.submitFlag = false
   }
 
@@ -136,22 +125,28 @@ export default class Login extends Vue {
 
     if (warFlag) {
       const fileName = this.randomString()
-      this.$store.commit('setName', this.name)
-      this.$store.commit('setFileName', fileName)
-      const fd = new FormData()
-      fd.append('id', this.$store.getters.socket.id)
-      fd.append('name', this.name)
-      fd.append('fileName', fileName)
-      fd.append('file', this.file as Blob)
-      await this.$axios.$post(`${process.env.axiosUrl}/upload`, fd, {
-        headers: {
-          'content-type': 'multipart/form-data',
-        },
-      })
-      this.$router.push('/')
+      await this.postData(this.name, fileName, this.file)
     }
 
     this.submitFlag = false
+  }
+
+  async postData(name: string, fileName: string, file: File | null = null) {
+    this.$store.commit('setName', name)
+    this.$store.commit('setFileName', fileName)
+    const fd = new FormData()
+    fd.append('id', this.$store.getters.socket.id)
+    fd.append('name', name)
+    fd.append('fileName', fileName)
+    if (file !== null) {
+      fd.append('file', file as Blob)
+    }
+    await this.$axios.$post(`${process.env.axiosUrl}/upload`, fd, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    this.$router.push('/')
   }
 
   randomString() {

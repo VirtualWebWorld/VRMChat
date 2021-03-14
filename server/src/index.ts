@@ -152,10 +152,9 @@ app
       res.status(400).send('No file uploaded.')
       return
     }
-    let fileName = req.body.fileName
-    if (fileName === 'guest') {
-      fileName = defaultAvatarName
-    }
+
+    const fileName = req.body.fileName
+
     const data: VRMData = {
       id: req.body.id,
       name: req.body.name,
