@@ -3,6 +3,7 @@ canvas.canvas(ref='threeCanvas', @mousedown='keyLockFree')
 </template>
 
 <script lang="ts">
+import * as THREE from 'three'
 import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
 import { VRM } from '@pixiv/three-vrm'
@@ -10,11 +11,13 @@ import { VRMData, VRMState } from '../domain'
 import Direction from './js/avatarcontrol/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
+import Nameplate from './js/Nameplate'
 
 interface VRMAvatarData {
   id: string
   name: string
   vrm: VRM
+  np: THREE.Sprite
 }
 
 @Component({})
@@ -38,6 +41,7 @@ export default class Three extends Vue {
 
   moveDirection: Direction = new Direction()
   cameraChanging: boolean = false
+  np: Nameplate = new Nameplate()
 
   /** computed() */
   get cFlag() {
@@ -75,6 +79,7 @@ export default class Three extends Vue {
         const vsd = this.vrmArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           this.threeMain.scene.remove(vsd.vrm!.scene)
+          this.threeMain.scene.remove(vsd.np)
         }
       })
       .on('new-vrm-data', (data: VRMState) => {
@@ -87,6 +92,11 @@ export default class Three extends Vue {
           vrm.rotation.x = data.rx
           vrm.rotation.y = data.ry
           vrm.rotation.z = data.rz
+
+          const np = vsd.np
+          np.position.x = data.x
+          np.position.y = data.y + 2
+          np.position.z = data.z
         }
       })
 
@@ -181,13 +191,17 @@ export default class Three extends Vue {
 
   async newVRMLoad(data: VRMData) {
     const model = await this.va.loadAvaterModel(this.modelPath(data.vrm))
-    const vrmData = {
+    const namePlate = this.np.namePlate(data.name)
+    const vrmData: VRMAvatarData = {
       id: data.id,
       name: data.name,
       vrm: model,
+      np: namePlate,
     }
     this.vrmArr.push(vrmData)
     this.threeMain.scene.add(vrmData.vrm!.scene)
+    vrmData.np.position.y = 2
+    this.threeMain.scene.add(vrmData.np)
   }
 
   loop() {
