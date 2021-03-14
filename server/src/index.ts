@@ -1,4 +1,4 @@
-import express, { NextFunction } from 'express'
+import express from 'express'
 import { Server, Socket } from 'socket.io'
 import { Message, VRMData, VRMState } from '../../client/domain'
 import path from 'path'
