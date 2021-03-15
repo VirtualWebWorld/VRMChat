@@ -28,10 +28,15 @@ export default class Index extends Vue {
   }
 
   beforeRouteLeave(_to: VueRouter, _from: VueRouter, next: any) {
-    // this.socket.emit('tping')
-    cancelAnimationFrame(this.three.loopAnime)
-    this.socket.emit('logout')
-    next()
+    const answer = window.confirm('Log out. Is it OK?')
+    if (answer) {
+      // this.socket.emit('tping')
+      cancelAnimationFrame(this.three.loopAnime)
+      this.socket.emit('logout')
+      next()
+    } else {
+      next(false)
+    }
   }
 }
 </script>
