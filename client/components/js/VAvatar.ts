@@ -10,15 +10,12 @@ export default class VAvatar {
   vrmAngle: number = 0
   schema: any = null
   three: ThreeMain
-  clock: THREE.Clock
   camera!: Camera
   store: any
-  constructor(scene: THREE.Scene, three: ThreeMain) {
-    this.scene = scene
+  constructor(three: ThreeMain) {
+    this.scene = three.scene
     this.loader = new GLTFLoader()
     this.three = three
-    this.clock = new THREE.Clock()
-    this.clock.start()
   }
 
   async loadAvater(store: any, path: string) {
@@ -74,10 +71,7 @@ export default class VAvatar {
   }
 
   move(vector: THREE.Vector2) {
-    const angle = this.three.camera.quaternion
-    const rotate = new THREE.Euler().setFromQuaternion(angle, 'YXZ')
-    this.vrm.scene.rotation.y = rotate.y
-
+    const rotate = this.three.getCameraAngle()
     const rotatedVector = vector.rotateAround(new THREE.Vector2(), rotate.y)
     const moveX = 0.1 * rotatedVector.x
     const moveZ = -0.1 * rotatedVector.y
@@ -91,8 +85,12 @@ export default class VAvatar {
     this.camera.cameraChange()
   }
 
+  controlLock(flag: boolean) {
+    this.camera.controlLock(flag)
+  }
+
   animate() {
     this.camera.animate()
-    this.vrm.update(this.clock.getDelta())
+    this.vrm.update(this.three.clock.getDelta())
   }
 }
