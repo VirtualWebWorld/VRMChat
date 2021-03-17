@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { VRM, VRMSchema } from '@pixiv/three-vrm'
 import ThreeMain from '../ThreeMain'
 
@@ -7,92 +8,118 @@ export default class Camera {
   cameraMode: string[]
   cameraModeNum: number
   camera: THREE.PerspectiveCamera
-  controls: OrbitControls
+  tpsControls: OrbitControls
+  fpsControls: PointerLockControls
   vrm: VRM
-  angle: { a: number; p: number }
-  mouse: { x0: number; y0: number; x: number; y: number }
-  vrmRotateMem: { x: number; y: number; z: number }
-  isMouseDown: boolean
+  three: ThreeMain
+  cLock: boolean
   constructor(three: ThreeMain, vrm: VRM) {
+    this.three = three
     this.cameraMode = ['TPS', 'FPS']
-    this.cameraModeNum = 0
+    this.cameraModeNum = 1
     this.camera = three.camera
-    this.controls = three.controls
+    this.tpsControls = new OrbitControls(
+      three.camera,
+      three.renderer.domElement
+    )
+    this.tpsControls.minDistance = 1
+    this.tpsControls.maxDistance = 50
+
+    this.fpsControls = new PointerLockControls(
+      three.camera,
+      three.renderer.domElement
+    )
+
+    this.cLock = false
+
     this.vrm = vrm
-    this.angle = {
-      a: 0,
-      p: 0,
-    }
 
-    this.mouse = {
-      x0: 0,
-      y0: 0,
-      x: 0,
-      y: 0,
-    }
-
-    this.vrmRotateMem = {
-      x: 0,
-      y: 0,
-      z: 0,
-    }
-
-    this.moveCamera()
-
-    this.isMouseDown = false
-
-    window.addEventListener('mousedown', (e) => {
-      this.isMouseDown = true
-      this.mouse.x0 = e.pageX
-      this.mouse.y0 = e.pageY
-      this.vrmRotateMem.x = this.vrm.scene.rotation.x
-      this.vrmRotateMem.y = this.vrm.scene.rotation.y
-      this.vrmRotateMem.z = this.vrm.scene.rotation.z
-    })
-    window.addEventListener('mousemove', (e) => {
-      this.mouse.x = e.pageX
-      this.mouse.y = e.pageY
-      if (this.cameraMode[this.cameraModeNum] === 'FPS' && this.isMouseDown) {
-        this.cameraRotateFPS()
+    three.renderer.domElement.addEventListener('click', () => {
+      if (this.cameraMode[this.cameraModeNum] === 'FPS') {
+        this.fpsControls.connect()
+        this.fpsControls.lock()
       }
     })
-    window.addEventListener('mouseup', () => {
-      this.isMouseDown = false
-    })
+
+    this.moveCamera()
   }
 
   cameraChange() {
     this.cameraModeNum = (this.cameraModeNum + 1) % this.cameraMode.length
-    if (this.cameraMode[this.cameraModeNum] === 'TPS') {
-      this.controls.reset()
-      this.controls.enabled = true
-      this.camera.position.x =
-        this.vrm.scene.position.x + 5 * Math.sin(this.vrm.scene.rotation.y)
-      this.camera.position.y = this.vrm.scene.position.y + 2
-      this.camera.position.z =
-        this.vrm.scene.position.z + 5 * Math.cos(this.vrm.scene.rotation.y)
-    } else {
-      this.controls.saveState()
-      this.controls.enabled = false
+    switch (this.cameraMode[this.cameraModeNum]) {
+      case 'TPS':
+        // dis fps
+        this.fpsControls.unlock()
+        this.fpsControls.disconnect()
+
+        // co tps
+        this.tpsControls.reset()
+        this.tpsControls.enabled = true
+        this.camera.position.x =
+          this.vrm.scene.position.x + 5 * Math.sin(this.vrm.scene.rotation.y)
+        this.camera.position.y = this.vrm.scene.position.y + 2
+        this.camera.position.z =
+          this.vrm.scene.position.z + 5 * Math.cos(this.vrm.scene.rotation.y)
+        this.vrm.humanoid
+          ?.getBoneNode(VRMSchema.HumanoidBoneName.Head)
+          ?.rotation.set(0, 0, 0)
+        break
+      case 'FPS':
+        // dis tps
+        this.tpsControls.saveState()
+        this.tpsControls.enabled = false
+
+        // co fps
+        this.fpsControls.connect()
+        this.fpsControls.lock()
+        break
     }
     this.moveCamera()
+  }
+
+  controlLock(flag: boolean) {
+    if (flag) {
+      switch (this.cameraMode[this.cameraModeNum]) {
+        case 'TPS':
+          this.tpsControls.enabled = false
+          break
+        case 'FPS':
+          this.fpsControls.unlock()
+          this.fpsControls.disconnect()
+          break
+      }
+    } else {
+      switch (this.cameraMode[this.cameraModeNum]) {
+        case 'TPS':
+          this.tpsControls.enabled = true
+          break
+        case 'FPS':
+          this.fpsControls.connect()
+          this.fpsControls.lock()
+          break
+      }
+    }
   }
 
   moveCamera(x: number = 0, z: number = 0) {
     switch (this.cameraMode[this.cameraModeNum]) {
       case 'TPS':
-        this.cameraTPS(x, z)
+        this.moveCameraTPS(x, z)
         break
       case 'FPS':
-        this.camera.rotation.set(0, this.vrm.scene.rotation.y, 0)
-        this.cameraFPS()
+        this.moveCameraFPS()
         break
     }
   }
 
   animate() {
-    if (this.cameraMode[this.cameraModeNum] === 'TPS') {
-      this.controls.update()
+    switch (this.cameraMode[this.cameraModeNum]) {
+      case 'TPS':
+        this.tpsControls.update()
+        break
+      case 'FPS':
+        this.rotateCameraFPS()
+        break
     }
   }
 
@@ -113,23 +140,28 @@ export default class Camera {
     return p
   }
 
-  cameraTPS(x: number, z: number) {
+  moveCameraTPS(x: number, z: number) {
     this.camera.position.x += x
     this.camera.position.z += z
     const p = this.headPosition()
-    this.controls.target.set(p.x, p.y, p.z)
+    const rotate = this.three.getCameraAngle()
+    this.vrm.scene.rotation.y = rotate.y
+    this.tpsControls.target.set(p.x, p.y, p.z)
   }
 
-  cameraFPS() {
+  moveCameraFPS() {
     const p = this.headPosition()
     this.camera.position.set(p.x, p.y, p.z)
   }
 
-  cameraRotateFPS() {
-    const rotateY = (this.mouse.x - this.mouse.x0) * 0.005
-    // const rotateX = (this.mouse.y - this.mouse.y0) * 0.2
-    this.vrm.scene.rotation.y = this.vrmRotateMem.y - rotateY
-    this.camera.rotation.y = this.vrm.scene.rotation.y
-    this.cameraFPS()
+  rotateCameraFPS() {
+    const angle = this.fpsControls.getObject().quaternion
+    const rotate = new THREE.Euler().setFromQuaternion(angle, 'YXZ')
+    this.vrm.scene.rotation.y = rotate.y
+    this.vrm.humanoid
+      ?.getBoneNode(VRMSchema.HumanoidBoneName.Head)
+      ?.rotation.set(rotate.x, 0, 0)
+    console.log(this.fpsControls.getObject().rotation.x)
+    this.moveCameraFPS()
   }
 }

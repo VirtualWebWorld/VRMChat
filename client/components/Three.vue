@@ -52,13 +52,13 @@ export default class Three extends Vue {
   @Watch('cFlag')
   commentFocus() {
     this.keyLock = this.cFlag
-    this.threeMain.controls.enabled = !this.cFlag
+    this.va.controlLock(this.cFlag)
   }
 
   /** mounted() */
   async mounted() {
     this.threeMain = new ThreeMain(this.threeCanvas)
-    this.va = new VAvatar(this.threeMain.scene, this.threeMain)
+    this.va = new VAvatar(this.threeMain)
     await this.va.loadAvater(
       this.$store,
       this.modelPath(this.$store.getters.fileName)
@@ -112,9 +112,7 @@ export default class Three extends Vue {
       this.threeMain.camera.updateProjectionMatrix()
     })
     document.addEventListener('mouseleave', () => {
-      for (const i in this.moveDirection.keyArr) {
-        this.moveDirection.keyArr[i] = false
-      }
+      this.keyInitial()
     })
 
     this.loopAnime = requestAnimationFrame(this.loop)
@@ -127,6 +125,12 @@ export default class Three extends Vue {
 
   keyLockFree() {
     this.$store.commit('isComment', false)
+  }
+
+  keyInitial() {
+    for (const i in this.moveDirection.keyArr) {
+      this.moveDirection.keyArr[i] = false
+    }
   }
 
   keyState(state: string, e: KeyboardEvent) {
@@ -164,6 +168,7 @@ export default class Three extends Vue {
         break
       case 'Enter':
         this.$store.commit('isComment', true)
+        this.keyInitial()
         e.preventDefault()
         break
     }

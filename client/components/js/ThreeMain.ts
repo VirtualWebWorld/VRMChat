@@ -1,6 +1,5 @@
 import * as THREE from 'three'
 // import Stats from 'three/examples/jsm/libs/stats.module'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 export default class ThreeMain {
   canvas: HTMLCanvasElement
@@ -12,9 +11,9 @@ export default class ThreeMain {
   // stats: Stats
   axesHelper: THREE.AxesHelper
   gridHelper: THREE.GridHelper
-  controls: OrbitControls
   light: THREE.PointLight
   lightHelper: THREE.PointLightHelper
+  clock: THREE.Clock
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.width = window.innerWidth
@@ -30,6 +29,10 @@ export default class ThreeMain {
       0.1,
       10000
     )
+
+    this.clock = new THREE.Clock()
+    this.clock.start()
+
     // eslint-disable-next-line unicorn/number-literal-case
     this.light = new THREE.PointLight(0xffffff, 2, 50, 1)
     this.scene.add(this.light)
@@ -41,19 +44,15 @@ export default class ThreeMain {
     this.scene.add(this.axesHelper)
     this.gridHelper = new THREE.GridHelper(1000, 1000)
     this.scene.add(this.gridHelper)
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 
     this.initialSetting()
   }
 
-  initialSetting() {
+  private initialSetting() {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(this.width, this.height)
 
     this.camera.position.set(0, 2, 5)
-
-    this.controls.minDistance = 1
-    this.controls.maxDistance = 50
 
     // this.stats.showPanel(0)
     // this.stats.domElement.style.position = 'absolute'
@@ -62,6 +61,13 @@ export default class ThreeMain {
 
     this.light.position.set(0, 20, 0)
     this.light.lookAt(new THREE.Vector3(0, 0, 0))
+  }
+
+  getCameraAngle() {
+    const angle = this.camera.quaternion
+    const rotate = new THREE.Euler().setFromQuaternion(angle, 'YXZ')
+
+    return rotate
   }
 
   animate() {
