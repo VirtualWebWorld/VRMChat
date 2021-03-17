@@ -1,9 +1,6 @@
+import * as THREE from 'three'
+
 export default interface VRMState {
   id: string
-  x: number
-  y: number
-  z: number
-  rx: number
-  ry: number
-  rz: number
+  vrmData: THREE.Scene | THREE.Group
 }

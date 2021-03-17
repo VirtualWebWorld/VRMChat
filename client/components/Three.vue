@@ -43,6 +43,9 @@ export default class Three extends Vue {
   cameraChanging: boolean = false
   np: Nameplate = new Nameplate()
 
+  fpsInterval = 1000 / 60
+  thenTime = 0
+
   /** computed() */
   get cFlag() {
     return this.$store.getters.commentFlag
@@ -86,17 +89,17 @@ export default class Three extends Vue {
         const vsd = this.vrmArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           const vrm = vsd.vrm!.scene
-          vrm.position.x = data.x
-          vrm.position.y = data.y
-          vrm.position.z = data.z
-          vrm.rotation.x = data.rx
-          vrm.rotation.y = data.ry
-          vrm.rotation.z = data.rz
+          vrm.position.x = data.vrmData.position.x
+          vrm.position.y = data.vrmData.position.y
+          vrm.position.z = data.vrmData.position.z
+          vrm.rotation.x = data.vrmData.rotation.x
+          vrm.rotation.y = data.vrmData.rotation.y
+          vrm.rotation.z = data.vrmData.rotation.z
 
           const np = vsd.np
-          np.position.x = data.x
-          np.position.y = data.y + 2
-          np.position.z = data.z
+          np.position.x = data.vrmData.position.x
+          np.position.y = data.vrmData.position.y + 2
+          np.position.z = data.vrmData.position.z
         }
       })
 
@@ -115,6 +118,7 @@ export default class Three extends Vue {
       this.keyInitial()
     })
 
+    this.thenTime = Date.now()
     this.loopAnime = requestAnimationFrame(this.loop)
   }
 
@@ -210,22 +214,27 @@ export default class Three extends Vue {
   }
 
   loop() {
-    const moveNum = this.moveDirection.toVector2()
-    if (!(moveNum.x === 0 && moveNum.y === 0)) {
-      this.va.move(moveNum)
+    const now = Date.now()
+    const elapsed = now - this.thenTime
+
+    if (elapsed > this.fpsInterval) {
+      // 60fps
+      this.thenTime = now - (elapsed % this.fpsInterval)
+
+      const moveNum = this.moveDirection.toVector2()
+      if (!(moveNum.x === 0 && moveNum.y === 0)) {
+        this.va.move(moveNum)
+      }
+      this.va.animate()
     }
-    this.va.animate()
-    this.threeMain.animate()
+
     const positionData: VRMState = {
       id: this.socket!.id,
-      x: this.va.vrm.scene.position.x,
-      y: this.va.vrm.scene.position.y,
-      z: this.va.vrm.scene.position.z,
-      rx: this.va.vrm.scene.rotation.x,
-      ry: this.va.vrm.scene.rotation.y,
-      rz: this.va.vrm.scene.rotation.z,
+      vrmData: this.va.vrm.scene,
     }
     this.socket!.volatile.emit('send-vrm-data', positionData)
+
+    this.threeMain.animate()
     this.loopAnime = requestAnimationFrame(this.loop)
   }
 }
