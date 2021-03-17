@@ -41,11 +41,15 @@ export default class Camera {
       }
     })
 
-    this.moveCamera()
+    this.setupCamera()
   }
 
   cameraChange() {
     this.cameraModeNum = (this.cameraModeNum + 1) % this.cameraMode.length
+    this.setupCamera()
+  }
+
+  setupCamera() {
     switch (this.cameraMode[this.cameraModeNum]) {
       case 'TPS':
         // dis fps
