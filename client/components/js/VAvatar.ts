@@ -8,7 +8,6 @@ export default class VAvatar {
   scene: THREE.Scene
   vrm!: VRM
   vrmAngle: number = 0
-  schema: any = null
   three: ThreeMain
   camera!: Camera
   store: any
@@ -41,7 +40,6 @@ export default class VAvatar {
 
   vrmSet(vrm: VRM) {
     this.scene.add(vrm.scene)
-    this.schema = VRMSchema
     vrm.humanoid!.setPose({
       [VRMSchema.HumanoidBoneName.LeftUpperArm]: {
         rotation: [0, 0, 0.5, 1],
