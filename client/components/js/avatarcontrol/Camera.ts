@@ -161,7 +161,6 @@ export default class Camera {
     this.vrm.humanoid
       ?.getBoneNode(VRMSchema.HumanoidBoneName.Head)
       ?.rotation.set(rotate.x, 0, 0)
-    console.log(this.fpsControls.getObject().rotation.x)
     this.moveCameraFPS()
   }
 }

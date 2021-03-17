@@ -33,7 +33,6 @@ export default class ThreeMain {
     this.clock = new THREE.Clock()
     this.clock.start()
 
-    // eslint-disable-next-line unicorn/number-literal-case
     this.light = new THREE.PointLight(0xffffff, 2, 50, 1)
     this.scene.add(this.light)
 
