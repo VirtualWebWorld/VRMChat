@@ -18,6 +18,7 @@ interface VRMAvatarData {
   name: string
   vrm: VRM
   np: THREE.Sprite
+  h: number
 }
 
 @Component({})
@@ -98,7 +99,7 @@ export default class Three extends Vue {
 
           const np = vsd.np
           np.position.x = data.x
-          np.position.y = data.y + 2
+          np.position.y = data.y + vsd.h + 0.2
           np.position.z = data.z
         }
       })
@@ -200,17 +201,24 @@ export default class Three extends Vue {
 
   async newVRMLoad(data: VRMData) {
     const model = await this.va.loadAvaterModel(this.modelPath(data.vrm))
+    this.threeMain.scene.add(model.scene)
+
+    const bBox = new THREE.Box3().setFromObject(model.scene)
+    const bSize = bBox.max.sub(bBox.min)
+    const bHight = bSize.y
+
     const namePlate = this.np.namePlate(data.name)
+    namePlate.position.y = bHight + 0.2
+    this.threeMain.scene.add(namePlate)
+
     const vrmData: VRMAvatarData = {
       id: data.id,
       name: data.name,
       vrm: model,
       np: namePlate,
+      h: bHight,
     }
     this.vrmArr.push(vrmData)
-    this.threeMain.scene.add(vrmData.vrm!.scene)
-    vrmData.np.position.y = 2
-    this.threeMain.scene.add(vrmData.np)
   }
 
   loop() {
