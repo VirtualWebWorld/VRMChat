@@ -89,17 +89,17 @@ export default class Three extends Vue {
         const vsd = this.vrmArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           const vrm = vsd.vrm!.scene
-          vrm.position.x = data.vrmData.position.x
-          vrm.position.y = data.vrmData.position.y
-          vrm.position.z = data.vrmData.position.z
-          vrm.rotation.x = data.vrmData.rotation.x
-          vrm.rotation.y = data.vrmData.rotation.y
-          vrm.rotation.z = data.vrmData.rotation.z
+          vrm.position.x = data.x
+          vrm.position.y = data.y
+          vrm.position.z = data.z
+          vrm.rotation.x = data.rx
+          vrm.rotation.y = data.ry
+          vrm.rotation.z = data.rz
 
           const np = vsd.np
-          np.position.x = data.vrmData.position.x
-          np.position.y = data.vrmData.position.y + 2
-          np.position.z = data.vrmData.position.z
+          np.position.x = data.x
+          np.position.y = data.y + 2
+          np.position.z = data.z
         }
       })
 
@@ -230,7 +230,12 @@ export default class Three extends Vue {
 
     const positionData: VRMState = {
       id: this.socket!.id,
-      vrmData: this.va.vrm.scene,
+      x: this.va.vrm.scene.position.x,
+      y: this.va.vrm.scene.position.y,
+      z: this.va.vrm.scene.position.z,
+      rx: this.va.vrm.scene.rotation.x,
+      ry: this.va.vrm.scene.rotation.y,
+      rz: this.va.vrm.scene.rotation.z,
     }
     this.socket!.volatile.emit('send-vrm-data', positionData)
 
