@@ -1,6 +1,6 @@
 import express from 'express'
 import { Server, Socket } from 'socket.io'
-import { Message, VRMData, VRMState } from '../../client/domain'
+import { Message, VRMData, VRMMove, VRMState } from '../../client/domain'
 import path from 'path'
 import multer from 'multer'
 import fs from 'fs'
@@ -95,6 +95,9 @@ io.on('connection', (socket: Socket) => {
     })
     .on('send-vrm-data', (data: VRMState) => {
       socket.broadcast.emit('new-vrm-data', data)
+    })
+    .on('send-vrm-move', (data: VRMMove) => {
+      socket.broadcast.volatile.emit('new-vrm-move', data)
     })
     .on('logout', () => {
       deleteData(socket)

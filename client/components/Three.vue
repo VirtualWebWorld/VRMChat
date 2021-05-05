@@ -7,7 +7,7 @@ import * as THREE from 'three'
 import { Component, Ref, Vue, Watch } from 'nuxt-property-decorator'
 import { Socket } from 'socket.io-client'
 import { VRM } from '@pixiv/three-vrm'
-import { VRMData, VRMState } from '../domain'
+import { VRMData, VRMState, VRMMove } from '../domain'
 import Direction from './js/avatarcontrol/Direction'
 import ThreeMain from './js/ThreeMain'
 import VAvatar from './js/VAvatar'
@@ -30,7 +30,8 @@ export default class Three extends Vue {
   va!: VAvatar
 
   socket: Socket = this.$store.getters.socket
-  vrmArr: VRMAvatarData[] = []
+  vrmADArr: VRMAvatarData[] = []
+  vrmAMArr = new Map<string, { move: THREE.Vector2; angle: number }>()
   loopAnime: number = 0
 
   keyFront: string = 'w'
@@ -45,7 +46,9 @@ export default class Three extends Vue {
   np: Nameplate = new Nameplate()
 
   fpsInterval = 1000 / 60
-  thenTime = 0
+  fixInterval = 1000 / 1
+  fpsThenTime = 0
+  fixThenTime = 0
 
   /** computed() */
   get cFlag() {
@@ -80,14 +83,14 @@ export default class Three extends Vue {
         await this.newVRMLoad(data)
       })
       .on('old-vrm', (data: VRMData) => {
-        const vsd = this.vrmArr.find((d) => d.id === data.id)
+        const vsd = this.vrmADArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           this.threeMain.scene.remove(vsd.vrm!.scene)
           this.threeMain.scene.remove(vsd.np)
         }
       })
       .on('new-vrm-data', (data: VRMState) => {
-        const vsd = this.vrmArr.find((d) => d.id === data.id)
+        const vsd = this.vrmADArr.find((d) => d.id === data.id)
         if (vsd !== undefined) {
           const vrm = vsd.vrm!.scene
           vrm.position.x = data.x
@@ -96,12 +99,10 @@ export default class Three extends Vue {
           vrm.rotation.x = data.rx
           vrm.rotation.y = data.ry
           vrm.rotation.z = data.rz
-
-          const np = vsd.np
-          np.position.x = data.x
-          np.position.y = data.y + vsd.h + 0.2
-          np.position.z = data.z
         }
+      })
+      .on('new-vrm-move', (data: VRMMove) => {
+        this.vrmAMArr.set(data.id, { move: data.move, angle: data.angle })
       })
 
     window.addEventListener('keydown', (e) => {
@@ -119,7 +120,8 @@ export default class Three extends Vue {
       this.keyInitial()
     })
 
-    this.thenTime = Date.now()
+    this.fpsThenTime = Date.now()
+    this.fixThenTime = Date.now()
     this.loopAnime = requestAnimationFrame(this.loop)
   }
 
@@ -218,35 +220,66 @@ export default class Three extends Vue {
       np: namePlate,
       h: bHight,
     }
-    this.vrmArr.push(vrmData)
+    this.vrmADArr.push(vrmData)
+  }
+
+  moveNamePlate(vsd: VRMAvatarData) {
+    const np = vsd.np
+    const vp = vsd.vrm.scene.position
+    np.position.x = vp.x
+    np.position.y = vp.y + vsd.h + 0.2
+    np.position.z = vp.z
   }
 
   loop() {
     const now = Date.now()
-    const elapsed = now - this.thenTime
 
-    if (elapsed > this.fpsInterval) {
+    const fpsElapsed = now - this.fpsThenTime
+    if (fpsElapsed > this.fpsInterval) {
       // 60fps
-      this.thenTime = now - (elapsed % this.fpsInterval)
+      this.fpsThenTime = now - (fpsElapsed % this.fpsInterval)
+
+      for (const dAD of this.vrmADArr) {
+        const dAM = this.vrmAMArr.get(dAD.id)
+        if (dAM !== undefined) {
+          const moveD = this.va.moveDis(dAM.move, dAM.angle)
+          dAD.vrm.scene.position.x += moveD.x
+          dAD.vrm.scene.position.z += moveD.z
+          dAD.vrm.scene.rotation.y = dAM.angle
+        }
+      }
 
       const moveNum = this.moveDirection.toVector2()
       if (!(moveNum.x === 0 && moveNum.y === 0)) {
         this.va.move(moveNum)
       }
       this.va.animate()
+      const moveData: VRMMove = {
+        id: this.socket!.id,
+        move: moveNum,
+        angle: this.va.vrm.scene.rotation.y,
+      }
+      this.socket!.volatile.emit('send-vrm-move', moveData)
     }
 
-    const positionData: VRMState = {
-      id: this.socket!.id,
-      x: this.va.vrm.scene.position.x,
-      y: this.va.vrm.scene.position.y,
-      z: this.va.vrm.scene.position.z,
-      rx: this.va.vrm.scene.rotation.x,
-      ry: this.va.vrm.scene.rotation.y,
-      rz: this.va.vrm.scene.rotation.z,
-    }
-    this.socket!.volatile.emit('send-vrm-data', positionData)
+    const fixElapsed = now - this.fixThenTime
+    if (fixElapsed > this.fixInterval) {
+      // 1fps
+      this.fixThenTime = now - (fixElapsed % this.fixInterval)
 
+      const positionData: VRMState = {
+        id: this.socket!.id,
+        x: this.va.vrm.scene.position.x,
+        y: this.va.vrm.scene.position.y,
+        z: this.va.vrm.scene.position.z,
+        rx: this.va.vrm.scene.rotation.x,
+        ry: this.va.vrm.scene.rotation.y,
+        rz: this.va.vrm.scene.rotation.z,
+      }
+      this.socket!.emit('send-vrm-data', positionData)
+    }
+
+    this.vrmADArr.forEach((vsd) => this.moveNamePlate(vsd))
     this.threeMain.animate()
     this.loopAnime = requestAnimationFrame(this.loop)
   }

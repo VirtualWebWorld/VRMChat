@@ -68,15 +68,21 @@ export default class VAvatar {
     })
   }
 
-  move(vector: THREE.Vector2) {
-    const rotate = this.three.getCameraAngle()
-    const rotatedVector = vector.rotateAround(new THREE.Vector2(), rotate.y)
+  moveDis(vector: THREE.Vector2, angle: number) {
+    const v = new THREE.Vector2(vector.x, vector.y)
+    const rotatedVector = v.rotateAround(new THREE.Vector2(), angle)
     const moveX = 0.1 * rotatedVector.x
     const moveZ = -0.1 * rotatedVector.y
-    this.vrm.scene.position.x += moveX
-    this.vrm.scene.position.z += moveZ
+    return { x: moveX, z: moveZ }
+  }
 
-    this.camera.moveCamera(moveX, moveZ)
+  move(vector: THREE.Vector2) {
+    const rotate = this.three.getCameraAngle()
+    const moveD = this.moveDis(vector, rotate.y)
+    this.vrm.scene.position.x += moveD.x
+    this.vrm.scene.position.z += moveD.z
+
+    this.camera.moveCamera(moveD.x, moveD.z)
   }
 
   cameraChange() {
